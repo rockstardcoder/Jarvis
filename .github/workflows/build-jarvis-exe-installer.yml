@@ -1,0 +1,225 @@
+name: Build Jarvis EXE Installer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Jarvis files
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build frontend if present
+        shell: powershell
+        run: |
+          if (Test-Path "frontend/package.json") {
+            cd frontend
+            npm install
+            npm run build
+            cd ..
+          }
+
+      - name: Create installed launcher
+        shell: powershell
+        run: |
+           = @"
+          @echo off
+          setlocal enabledelayedexpansion
+
+          title Jarvis AI
+
+          cd /d "%~dp0"
+
+          echo.
+          echo ==========================================
+          echo              JARVIS AI
+          echo ==========================================
+          echo.
+          echo Scanning requirements...
+          echo.
+
+          set "PYTHON_CMD=python"
+          set "OLLAMA_MODEL=llama3.1:8b"
+
+          where python >nul 2>nul
+          if errorlevel 1 (
+              where py >nul 2>nul
+              if errorlevel 1 (
+                  echo [ERROR] Python 3.11+ is not installed or not added to PATH.
+                  echo Install Python 3.11+ and tick Add python.exe to PATH.
+                  pause
+                  exit /b 1
+              ) else (
+                  set "PYTHON_CMD=py -3"
+              )
+          )
+
+          echo [1/6] Python found.
+
+          echo.
+          echo [2/6] Checking virtual environment...
+          if not exist ".venv\Scripts\python.exe" (
+              echo Creating virtual environment...
+              %PYTHON_CMD% -m venv .venv
+          ) else (
+              echo Virtual environment exists. Skipping.
+          )
+
+          if errorlevel 1 (
+              echo [ERROR] Could not create virtual environment.
+              pause
+              exit /b 1
+          )
+
+          echo.
+          echo [3/6] Checking Python dependencies...
+          ".venv\Scripts\python.exe" -m pip install --upgrade pip
+
+          if exist "requirements.txt" (
+              ".venv\Scripts\python.exe" -m pip install -r requirements.txt
+          ) else (
+              if exist "pyproject.toml" (
+                  ".venv\Scripts\python.exe" -m pip install -e .
+              ) else (
+                  ".venv\Scripts\python.exe" -m pip install pywebview requests python-dotenv
+              )
+          )
+
+          if errorlevel 1 (
+              echo [ERROR] Python dependency installation failed.
+              pause
+              exit /b 1
+          )
+
+          echo.
+          echo [4/6] Checking Ollama...
+          where ollama >nul 2>nul
+          if errorlevel 1 (
+              echo Ollama not found. Installing Ollama silently...
+
+              powershell -NoProfile -ExecutionPolicy Bypass -Command "='https://ollama.com/download/OllamaSetup.exe'; =Join-Path C:\Users\Hitman\AppData\Local\Temp 'OllamaSetup.exe'; Invoke-WebRequest  -OutFile ; Start-Process  -ArgumentList '/S' -Wait"
+
+              where ollama >nul 2>nul
+              if errorlevel 1 (
+                  echo [ERROR] Ollama install finished but ollama command is still not available.
+                  echo Restart Windows, then run Jarvis again.
+                  pause
+                  exit /b 1
+              )
+          ) else (
+              echo Ollama exists. Skipping Ollama install.
+          )
+
+          echo.
+          echo [5/6] Checking Ollama model: %OLLAMA_MODEL%
+          ollama list | findstr /I "%OLLAMA_MODEL%" >nul 2>nul
+          if errorlevel 1 (
+              echo Pulling model %OLLAMA_MODEL%...
+              ollama pull %OLLAMA_MODEL%
+          ) else (
+              echo Ollama model exists. Skipping pull.
+          )
+
+          if errorlevel 1 (
+              echo [ERROR] Ollama model install failed.
+              pause
+              exit /b 1
+          )
+
+          echo.
+          echo [6/6] Launching Jarvis...
+          echo.
+
+          if exist "src\jarvis\main.py" (
+              start "" ".venv\Scripts\python.exe" "src\jarvis\main.py"
+              exit /b 0
+          )
+
+          if exist "src\jarvis\app.py" (
+              start "" ".venv\Scripts\python.exe" "src\jarvis\app.py"
+              exit /b 0
+          )
+
+          if exist "src\jarvis\ui_app.py" (
+              start "" ".venv\Scripts\python.exe" "src\jarvis\ui_app.py"
+              exit /b 0
+          )
+
+          if exist "ui_app.py" (
+              start "" ".venv\Scripts\python.exe" "ui_app.py"
+              exit /b 0
+          )
+
+          echo [ERROR] Could not find Jarvis startup file.
+          pause
+          exit /b 1
+          "@
+
+           =  -replace "          ", ""
+          Set-Content -Path "JarvisLauncher.bat" -Value  -Encoding ASCII
+          Set-Content -Path "Jarvis.cmd" -Value  -Encoding ASCII
+
+      - name: Create Inno Setup installer script
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force installer | Out-Null
+
+           = @"
+          #define MyAppName "Jarvis AI"
+          #define MyAppVersion "1.0.0"
+          #define MyAppPublisher "CoderBoiii"
+
+          [Setup]
+          AppId={{A8E9DAA1-0A10-4B13-AB51-3C6A2F8D0001}}
+          AppName={#MyAppName}
+          AppVersion={#MyAppVersion}
+          AppPublisher={#MyAppPublisher}
+          DefaultDirName={localappdata}\JarvisAI
+          DefaultGroupName=Jarvis AI
+          DisableProgramGroupPage=yes
+          OutputDir=Output
+          OutputBaseFilename=JarvisSetup
+          Compression=lzma2
+          SolidCompression=yes
+          WizardStyle=modern
+          PrivilegesRequired=lowest
+          ArchitecturesAllowed=x64compatible
+          ArchitecturesInstallIn64BitMode=x64compatible
+          UninstallDisplayIcon={app}\JarvisLauncher.bat
+
+          [Files]
+          Source: "*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: ".git\*,.github\*,.venv\*,venv\*,node_modules\*,Output\*,build\*,__pycache__\*,*.pyc,.env,.env.local"
+
+          [Icons]
+          Name: "{autodesktop}\Jarvis AI"; Filename: "{cmd}"; Parameters: "/k ""{app}\JarvisLauncher.bat"""; WorkingDir: "{app}"
+          Name: "{group}\Jarvis AI"; Filename: "{cmd}"; Parameters: "/k ""{app}\JarvisLauncher.bat"""; WorkingDir: "{app}"
+
+          [Run]
+          Filename: "{cmd}"; Parameters: "/k ""{app}\JarvisLauncher.bat"""; WorkingDir: "{app}"; Flags: nowait skipifsilent
+          "@
+
+           =  -replace "          ", ""
+          Set-Content -Path "installer/JarvisSetup.iss" -Value  -Encoding ASCII
+
+      - name: Install Inno Setup on GitHub runner
+        shell: powershell
+        run: |
+          choco install innosetup -y
+
+      - name: Build JarvisSetup.exe
+        shell: powershell
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "installer\JarvisSetup.iss"
+
+      - name: Upload JarvisSetup.exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: JarvisSetup
+          path: Output/JarvisSetup.exe

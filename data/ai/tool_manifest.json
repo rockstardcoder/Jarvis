@@ -1,0 +1,604 @@
+{
+  "version": "1.2",
+  "description": "Allowed Jarvis tool routes for local AI planning.",
+  "tools": {
+    "open_app": {
+      "description": "Open an installed desktop application.",
+      "actions": {
+        "_default": {
+          "required": ["app_name"],
+          "optional": []
+        }
+      }
+    },
+    "close_app": {
+      "description": "Close an installed/running desktop application.",
+      "actions": {
+        "_default": {
+          "required": ["app_name"],
+          "optional": []
+        }
+      }
+    },
+    "refresh_apps": {
+      "description": "Refresh installed app database.",
+      "actions": {
+        "_default": {
+          "required": [],
+          "optional": []
+        }
+      }
+    },
+    "list_apps": {
+      "description": "List/search installed apps.",
+      "actions": {
+        "_default": {
+          "required": [],
+          "optional": ["query"]
+        }
+      }
+    },
+    "system_info": {
+      "description": "Read real local system hardware, usage, battery, storage, network, and thermal information.",
+      "actions": {
+        "summary": {
+          "required": [],
+          "optional": []
+        },
+        "full_status": {
+          "required": [],
+          "optional": []
+        },
+        "usage": {
+          "required": [],
+          "optional": []
+        },
+        "cpu": {
+          "required": [],
+          "optional": []
+        },
+        "gpu": {
+          "required": [],
+          "optional": []
+        },
+        "ram": {
+          "required": [],
+          "optional": []
+        },
+        "cpu_usage": {
+          "required": [],
+          "optional": []
+        },
+        "gpu_usage": {
+          "required": [],
+          "optional": []
+        },
+        "ram_usage": {
+          "required": [],
+          "optional": []
+        },
+        "battery": {
+          "required": [],
+          "optional": []
+        },
+        "storage": {
+          "required": [],
+          "optional": []
+        },
+        "network": {
+          "required": [],
+          "optional": []
+        },
+        "thermal": {
+          "required": [],
+          "optional": []
+        },
+        "os": {
+          "required": [],
+          "optional": []
+        }
+      }
+    },
+    "window_intelligence": {
+      "description": "List, switch, and close visible Windows windows, including File Explorer folders and Task Manager.",
+      "actions": {
+        "list_windows": {
+          "required": [],
+          "optional": []
+        },
+        "list_file_explorer": {
+          "required": [],
+          "optional": []
+        },
+        "close_by_title": {
+          "required": ["target"],
+          "optional": []
+        },
+        "switch_by_title": {
+          "required": ["target"],
+          "optional": []
+        },
+        "close_file_explorer": {
+          "required": [],
+          "optional": ["target"]
+        },
+        "close_task_manager": {
+          "required": [],
+          "optional": []
+        }
+      }
+    },
+    "browser_intelligence": {
+      "description": "Read current browser window title/URL and title-match browser windows/tabs where Windows exposes the title.",
+      "actions": {
+        "current_title": {
+          "required": [],
+          "optional": []
+        },
+        "current_url": {
+          "required": [],
+          "optional": []
+        },
+        "list_browser_windows": {
+          "required": [],
+          "optional": []
+        },
+        "switch_by_title": {
+          "required": ["target"],
+          "optional": []
+        },
+        "close_window_by_title": {
+          "required": ["target"],
+          "optional": []
+        },
+        "close_tab_by_title": {
+          "required": ["target"],
+          "optional": []
+        },
+        "switch_tab_by_title": {
+          "required": ["target"],
+          "optional": []
+        }
+      }
+    },
+    "web_reader": {
+      "description": "Read webpages, summarize webpages, extract links/tables, read search results, and get Wikipedia summaries.",
+      "actions": {
+        "read_url": {
+          "required": ["target"],
+          "optional": []
+        },
+        "summarize_url": {
+          "required": ["target"],
+          "optional": []
+        },
+        "extract_links": {
+          "required": ["target"],
+          "optional": []
+        },
+        "extract_tables": {
+          "required": ["target"],
+          "optional": []
+        },
+        "search_results": {
+          "required": ["target"],
+          "optional": []
+        },
+        "wikipedia": {
+          "required": ["target"],
+          "optional": []
+        }
+      }
+    },
+    "system_control": {
+      "description": "Control safe Windows system settings and power actions.",
+      "actions": {
+        "volume_up": {
+          "required": [],
+          "optional": []
+        },
+        "volume_down": {
+          "required": [],
+          "optional": []
+        },
+        "mute": {
+          "required": [],
+          "optional": []
+        },
+        "lock": {
+          "required": [],
+          "optional": []
+        },
+        "sleep": {
+          "required": [],
+          "optional": []
+        },
+        "shutdown": {
+          "required": [],
+          "optional": []
+        },
+        "restart": {
+          "required": [],
+          "optional": []
+        },
+        "settings": {
+          "required": ["value"],
+          "optional": []
+        }
+      }
+    },
+    "web_control": {
+      "description": "Open websites, URLs, shortcuts, or search the web.",
+      "actions": {
+        "open_url": {
+          "required": ["target"],
+          "optional": ["browser"]
+        },
+        "open_shortcut": {
+          "required": ["target"],
+          "optional": ["browser"]
+        },
+        "search": {
+          "required": ["engine", "target"],
+          "optional": ["browser"]
+        }
+      }
+    },
+    "browser_control": {
+      "description": "Control browser tabs, page navigation, zoom, search on page, and media shortcuts.",
+      "actions": {
+        "new_tab": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "close_tab": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "reopen_closed_tab": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "new_window": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "incognito": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "close_window": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "next_tab": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "previous_tab": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "refresh": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "hard_refresh": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "back": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "forward": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "focus_address": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "downloads": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "history": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "bookmarks": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "find": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "find_text": {
+          "required": ["value"],
+          "optional": ["browser"]
+        },
+        "copy_url": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "duplicate_tab": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "zoom_in": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "zoom_out": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "reset_zoom": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "scroll_down": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "scroll_up": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "scroll_top": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "scroll_bottom": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "fullscreen": {
+          "required": [],
+          "optional": ["browser"]
+        },
+        "play_pause": {
+          "required": [],
+          "optional": ["browser"]
+        }
+      }
+    },
+    "file_control": {
+      "description": "Find/open folders and paths.",
+      "actions": {
+        "refresh_folders": {
+          "required": [],
+          "optional": []
+        },
+        "find_folder": {
+          "required": ["target"],
+          "optional": []
+        },
+        "open_folder": {
+          "required": ["target"],
+          "optional": []
+        },
+        "open_path": {
+          "required": ["target"],
+          "optional": []
+        }
+      }
+    },
+    "clipboard_control": {
+      "description": "Clipboard, typing, selection, and basic keyboard text actions.",
+      "actions": {
+        "copy_text": {
+          "required": ["value"],
+          "optional": []
+        },
+        "show_clipboard": {
+          "required": [],
+          "optional": []
+        },
+        "clear_clipboard": {
+          "required": [],
+          "optional": []
+        },
+        "copy_date": {
+          "required": [],
+          "optional": []
+        },
+        "copy_time": {
+          "required": [],
+          "optional": []
+        },
+        "copy_datetime": {
+          "required": [],
+          "optional": []
+        },
+        "paste": {
+          "required": [],
+          "optional": []
+        },
+        "type_text": {
+          "required": ["value"],
+          "optional": []
+        },
+        "copy_selected": {
+          "required": [],
+          "optional": []
+        },
+        "cut_selected": {
+          "required": [],
+          "optional": []
+        },
+        "select_all": {
+          "required": [],
+          "optional": []
+        }
+      }
+    },
+    "window_control": {
+      "description": "Control active windows.",
+      "actions": {
+        "minimize": {
+          "required": [],
+          "optional": []
+        },
+        "maximize": {
+          "required": [],
+          "optional": []
+        },
+        "restore": {
+          "required": [],
+          "optional": []
+        },
+        "close": {
+          "required": [],
+          "optional": []
+        },
+        "snap_left": {
+          "required": [],
+          "optional": []
+        },
+        "snap_right": {
+          "required": [],
+          "optional": []
+        },
+        "snap_up": {
+          "required": [],
+          "optional": []
+        },
+        "snap_down": {
+          "required": [],
+          "optional": []
+        },
+        "next_monitor": {
+          "required": [],
+          "optional": []
+        },
+        "previous_monitor": {
+          "required": [],
+          "optional": []
+        },
+        "show_desktop": {
+          "required": [],
+          "optional": []
+        },
+        "task_view": {
+          "required": [],
+          "optional": []
+        },
+        "switch_window": {
+          "required": [],
+          "optional": []
+        },
+        "minimize_all": {
+          "required": [],
+          "optional": []
+        },
+        "restore_minimized": {
+          "required": [],
+          "optional": []
+        }
+      }
+    },
+    "screenshot_control": {
+      "description": "Take, copy, and open screenshot tools.",
+      "actions": {
+        "full_screenshot": {
+          "required": [],
+          "optional": []
+        },
+        "active_window_screenshot": {
+          "required": [],
+          "optional": []
+        },
+        "copy_full_screenshot": {
+          "required": [],
+          "optional": []
+        },
+        "copy_active_window_screenshot": {
+          "required": [],
+          "optional": []
+        },
+        "open_screenshot_folder": {
+          "required": [],
+          "optional": []
+        },
+        "open_snipping_tool": {
+          "required": [],
+          "optional": []
+        },
+        "open_screen_snip": {
+          "required": [],
+          "optional": []
+        }
+      }
+    },
+    "ppt_maker": {
+      "description": "Create PowerPoint presentations.",
+      "actions": {
+        "create_ppt": {
+          "required": ["topic"],
+          "optional": ["style"]
+        },
+        "open_ppt_folder": {
+          "required": [],
+          "optional": []
+        }
+      }
+    },
+    "document_maker": {
+      "description": "Create Word documents, reports, essays, assignments, and notes.",
+      "actions": {
+        "create_document": {
+          "required": ["topic"],
+          "optional": ["doc_type"]
+        },
+        "open_document_folder": {
+          "required": [],
+          "optional": []
+        }
+      }
+    },
+    "pdf_tools": {
+      "description": "PDF info, text extraction, splitting, merging, and image to PDF conversion.",
+      "actions": {
+        "open_pdf_folder": {
+          "required": [],
+          "optional": []
+        },
+        "open_pdf_input_folder": {
+          "required": [],
+          "optional": []
+        },
+        "open_pdf_output_folder": {
+          "required": [],
+          "optional": []
+        },
+        "list_input_pdfs": {
+          "required": [],
+          "optional": []
+        },
+        "pdf_info": {
+          "required": ["path"],
+          "optional": []
+        },
+        "extract_text": {
+          "required": ["path"],
+          "optional": []
+        },
+        "split_pdf": {
+          "required": ["path"],
+          "optional": []
+        },
+        "merge_pdfs": {
+          "required": [],
+          "optional": ["folder"]
+        },
+        "images_to_pdf": {
+          "required": [],
+          "optional": ["folder"]
+        }
+      }
+    }
+  }
+}

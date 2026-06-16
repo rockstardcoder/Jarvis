@@ -1,0 +1,1041 @@
+from __future__ import annotations
+
+import json
+import os
+import traceback
+from pathlib import Path
+from typing import Any
+
+import speech_recognition as sr
+import webview
+
+from jarvis.app.ai_provider_manager import AIProviderManager
+from jarvis.app.auth_manager import AuthManager
+from jarvis.app.jarvis_runtime import JarvisRuntime
+from jarvis.services.diagnostics_manager import DiagnosticsManager
+from jarvis.app.chat_file_store import ChatFileStore
+from jarvis.app.email_sender import EmailSender
+from jarvis.app.firebase_sync import FirebaseSync
+from jarvis.app.sync_queue import SyncQueue
+
+
+ROOT_DIR = Path(__file__).resolve().parents[3]
+DATA_DIR = ROOT_DIR / "data"
+SETTINGS_DIR = DATA_DIR / "settings"
+MEMORY_DIR = DATA_DIR / "memory"
+TRAINING_DATA_DIR = ROOT_DIR / "Training_Data"
+
+UI_SETTINGS_FILE = SETTINGS_DIR / "ui_settings.json"
+
+
+DEFAULT_UI_SETTINGS: dict[str, Any] = {
+    "appearance": {
+        "theme": "dark-cyan",
+    },
+    "voice": {
+        "audio_output": True,
+        "continuous_listening": False,
+        "do_not_speak_errors": True,
+    },
+    "folders": {
+        "screenshots": str(DATA_DIR / "screenshots"),
+        "documents": str(DATA_DIR / "documents"),
+        "presentations": str(DATA_DIR / "presentations"),
+        "pdf": str(DATA_DIR / "pdf"),
+        "training_data": str(TRAINING_DATA_DIR),
+        "notes": str(DATA_DIR / "notes"),
+    },
+}
+
+
+class WebviewBridge:
+    """
+    Bridge between React UI and Python Jarvis backend.
+    """
+
+    def __init__(self) -> None:
+        self.runtime = JarvisRuntime()
+        self.diagnostics = DiagnosticsManager()
+        self.auth = AuthManager()
+        self.ai_providers = AIProviderManager()
+        self.chat_store = ChatFileStore(self.auth)
+        self.email_sender = EmailSender()
+        self.sync_queue = SyncQueue()
+        self.firebase_sync = FirebaseSync()
+
+        SETTINGS_DIR.mkdir(parents=True, exist_ok=True)
+        self.ui_settings = self._load_ui_settings()
+
+    def _load_ui_settings(self) -> dict:
+        try:
+            path = self._ui_settings_path()
+            if not path.exists():
+                return self._default_ui_settings()
+
+            import json
+            data = json.loads(path.read_text(encoding="utf-8"))
+
+            if not isinstance(data, dict):
+                return self._default_ui_settings()
+
+            defaults = self._default_ui_settings()
+            defaults.update(data)
+            return defaults
+
+        except Exception:
+            return self._default_ui_settings()
+
+    def _save_ui_settings(self, settings: dict) -> None:
+        try:
+            import json
+            path = self._ui_settings_path()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(
+                json.dumps(settings, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+        except Exception:
+            pass
+
+    def _ui_settings_path(self):
+        from pathlib import Path
+        root_dir = Path(__file__).resolve().parents[3]
+        return root_dir / "data" / "settings" / "ui_settings.json"
+
+    def _default_ui_settings(self) -> dict:
+        return {
+            "theme": "dark",
+            "assistant_name": "Jarvis",
+            "voice_enabled": True,
+            "continuous_listening": False,
+            "silent_errors": True,
+            "text_input_collapse_mode": "delay",
+            "preferred_model": "llama3.1:8b",
+            "cloud_sync_enabled": True,
+        }
+
+    def handle_command(
+        self,
+        command: str,
+        payload: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        payload = payload or {}
+
+        try:
+            if command == "app.ping":
+                return self._ok("Jarvis backend bridge is online.", self.runtime.get_status())
+
+            if command == "chat.send":
+                return self._handle_chat_send(payload)
+
+            if command == "settings.get":
+                return self._ok("Settings loaded.", self.ui_settings)
+
+            if command == "settings.update":
+                return self._handle_settings_update(payload)
+
+            if command == "voice.listen_raw":
+                return self._listen_raw_voice()
+
+            if command == "voice.listen_once":
+                return self._listen_once_and_execute()
+            
+            if command == "sync.status":
+                return self._ok(
+                "Sync status loaded.",
+                {
+                "reply": "Sync status loaded.",
+                "meta": "SYNC / STATUS",
+                "queue": self.sync_queue.get_status(),
+                "firebase": self.firebase_sync.get_status(),
+                },
+            )
+
+            if command == "sync.upload_pending":
+                result = self.firebase_sync.upload_pending(self.sync_queue, limit=20)
+                return {
+                "ok": result["ok"],
+                "message": result["message"],
+                "data": {
+                "reply": result["message"],
+                "meta": "SYNC / UPLOAD PENDING",
+                **result.get("data", {}),
+}   ,
+            }
+
+            if command == "voice.set_audio_output":
+                enabled = bool(payload.get("enabled", True))
+                self.ui_settings["voice"]["audio_output"] = enabled
+                self._save_ui_settings()
+
+                return self._runtime_command(
+                    "voice on" if enabled else "voice off",
+                    "VOICE / AUDIO OUTPUT",
+                )
+
+            if command == "voice.set_continuous_listening":
+                enabled = bool(payload.get("enabled", False))
+                self.ui_settings["voice"]["continuous_listening"] = enabled
+                self._save_ui_settings()
+
+                return self._runtime_command(
+                    "listen on" if enabled else "listen off",
+                    "VOICE / CONTINUOUS LISTENING",
+                )
+
+            if command == "voice.set_silent_errors":
+                enabled = bool(payload.get("enabled", True))
+                self.ui_settings["voice"]["do_not_speak_errors"] = enabled
+                self._save_ui_settings()
+
+                return self._ok(
+                    "Do-not-speak-errors setting saved.",
+                    {
+                        "reply": "Do-not-speak-errors setting saved.",
+                        "meta": "SETTINGS / VOICE",
+                        "settings": self.ui_settings,
+                    },
+                )
+
+            if command == "profile.get":
+                return self._ok("Profile loaded.", self._get_profile_data())
+
+            if command == "memory.show":
+                return self._runtime_command("show memory", "MEMORY / SHOW")
+
+            if command == "memory.clear":
+                return self._runtime_command("clear system memory", "MEMORY / CLEAR")
+
+            if command == "training.status":
+                return self._ok("Training_Data status loaded.", self.diagnostics.get_status())
+
+            if command == "training.export":
+                result = self.diagnostics.export_logs()
+
+                return self._ok(
+                    "Training_Data exported.",
+                    {
+                        "reply": f"Training_Data exported: {result}",
+                        "meta": "TRAINING_DATA / EXPORT",
+                        "result": result,
+                    },
+                )
+
+            if command == "training.delete":
+                result = self.diagnostics.delete_logs()
+
+                return self._ok(
+                    "Training_Data deleted.",
+                    {
+                        "reply": f"Training_Data deleted: {result}",
+                        "meta": "TRAINING_DATA / DELETE",
+                        "result": result,
+                    },
+                )
+
+            if command == "folder.open":
+                folder_key = str(payload.get("folder", "")).strip()
+                return self._open_folder(folder_key)
+
+            if command == "folder.choose":
+                folder_key = str(payload.get("folder", "")).strip()
+                return self._choose_folder(folder_key)
+
+            if command == "admin.health_check":
+                status = self.runtime.get_status()
+                system_result = self.runtime.send_command("system status")
+
+                return self._ok(
+                    "Health check completed.",
+                    {
+                        "reply": system_result.get("reply", "Health check completed."),
+                        "meta": "ADMIN / HEALTH CHECK",
+                        "runtime": status,
+                        "raw_output": system_result.get("raw_output", ""),
+                    },
+                )
+
+            if command == "admin.toggle_debug":
+                enabled = bool(payload.get("enabled", True))
+
+                return self._runtime_command(
+                    "ai debug on" if enabled else "ai debug off",
+                    "ADMIN / DEBUG",
+                )
+
+            if command == "admin.open_logs_folder":
+                return self._open_path(
+                    TRAINING_DATA_DIR,
+                    "Training_Data folder opened.",
+                    "ADMIN / OPEN LOGS",
+                )
+
+            if command == "admin.clear_memory":
+                return self._runtime_command("clear system memory", "ADMIN / CLEAR MEMORY")
+
+            if command == "auth.current_user":
+                return self.auth.get_current_user()
+
+            if command == "auth.signup_start":
+                return self.auth.start_signup(
+                    name=str(payload.get("name", "")),
+                    email=str(payload.get("email", "")),
+                    password=str(payload.get("password", "")),
+                )
+
+            if command == "auth.signup_verify":
+                return self.auth.verify_signup(
+                    email=str(payload.get("email", "")),
+                    code=str(payload.get("code", "")),
+                )
+
+            if command == "auth.login":
+                return self.auth.login(
+                    email=str(payload.get("email", "")),
+                    password=str(payload.get("password", "")),
+                )
+
+            if command == "auth.logout":
+                return self.auth.logout()
+
+            if command == "auth.update_name":
+                return self.auth.update_name(
+                    name=str(payload.get("name", "")),
+                )
+
+            if command == "auth.change_email_start":
+                return self.auth.start_change_email(
+                    new_email=str(payload.get("new_email", "")),
+                    password=str(payload.get("password", "")),
+                )
+
+            if command == "auth.change_email_verify":
+                return self.auth.verify_change_email(
+                    new_email=str(payload.get("new_email", "")),
+                    code=str(payload.get("code", "")),
+                )
+
+            if command == "auth.change_password":
+                return self.auth.change_password(
+                    current_password=str(payload.get("current_password", "")),
+                    new_password=str(payload.get("new_password", "")),
+                )
+
+            if command == "auth.forgot_password_start":
+                return self.auth.start_forgot_password(
+                    email=str(payload.get("email", "")),
+                )
+
+            if command == "auth.reset_password":
+                return self.auth.reset_password_with_code(
+                    email=str(payload.get("email", "")),
+                    code=str(payload.get("code", "")),
+                    new_password=str(payload.get("new_password", "")),
+                )
+
+            if command == "ai_provider.get":
+                return self._ok(
+                    "AI providers loaded.",
+                    self.ai_providers.get_settings(),
+                )
+
+            if command == "ai_provider.select":
+                return self.ai_providers.set_active_provider(
+                    provider_id=str(payload.get("provider", "")),
+                )
+
+            if command == "ai_provider.update_config":
+                return self.ai_providers.update_provider_config(
+                    provider_id=str(payload.get("provider", "")),
+                    model=payload.get("model"),
+                    base_url=payload.get("base_url"),
+                )
+
+            if command == "ai_provider.set_api_key":
+                return self.ai_providers.set_api_key(
+                    provider_id=str(payload.get("provider", "")),
+                    api_key=str(payload.get("api_key", "")),
+                )
+
+            if command == "ai_provider.clear_api_key":
+                return self.ai_providers.clear_api_key(
+                    provider_id=str(payload.get("provider", "")),
+                )
+
+            if command == "chat.create":
+                return self.chat_store.create_chat(
+                    title=str(payload.get("title", "New Chat")),
+                )
+
+            if command == "chat.list":
+                return self.chat_store.list_chats()
+
+            if command == "chat.load":
+                return self.chat_store.load_chat(
+                    chat_id=str(payload.get("chat_id", "")),
+                )
+
+            if command == "chat.save":
+                return self.chat_store.save_chat(
+                    chat_id=str(payload.get("chat_id", "")),
+                    title=str(payload.get("title", "New Chat")),
+                    messages=payload.get("messages", []),
+                    model=str(payload.get("model", "")),
+                )
+
+            if command == "chat.delete":
+                return self.chat_store.delete_chat(
+                    chat_id=str(payload.get("chat_id", "")),
+                )
+
+            if command == "email.get_settings":
+                return self._ok(
+                    "Email settings loaded.",
+                    self.email_sender.get_public_settings(),
+                )
+
+            if command == "email.update_settings":
+                return self.email_sender.update_settings(
+                    enabled=payload.get("enabled"),
+                    smtp_host=payload.get("smtp_host"),
+                    smtp_port=payload.get("smtp_port"),
+                    smtp_security=payload.get("smtp_security"),
+                    smtp_username=payload.get("smtp_username"),
+                    sender_email=payload.get("sender_email"),
+                    sender_name=payload.get("sender_name"),
+                )
+
+            if command == "email.set_smtp_password":
+                return self.email_sender.set_smtp_password(
+                    password=str(payload.get("password", "")),
+                )
+
+            if command == "email.clear_smtp_password":
+                return self.email_sender.clear_smtp_password()
+
+            if command == "email.test":
+                return self.email_sender.send_test_email(
+                    to_email=str(payload.get("to_email", "")),
+                )
+
+            return self._fail(f"Unknown UI command: {command}")
+
+        except Exception as exc:
+            return {
+                "ok": False,
+                "message": f"Bridge error: {exc}",
+                "data": {
+                    "reply": f"Bridge error: {exc}",
+                    "meta": "BRIDGE / ERROR",
+                    "error": traceback.format_exc(),
+                },
+            }
+
+    def shutdown(self) -> None:
+        try:
+            self.runtime.shutdown()
+        except Exception:
+            pass
+
+    def _listen_raw_voice(self) -> dict[str, Any]:
+        """
+        Listen once and return only the recognized text.
+        This does NOT execute the command.
+        Used by React wake-word loop so voice input can appear in chat first.
+        """
+        recognizer = sr.Recognizer()
+
+        try:
+            with sr.Microphone() as source:
+                recognizer.adjust_for_ambient_noise(source, duration=0.25)
+
+                audio = recognizer.listen(
+                    source,
+                    timeout=4,
+                    phrase_time_limit=7,
+                )
+
+            try:
+                heard_text = recognizer.recognize_google(audio).strip()
+            except sr.UnknownValueError:
+                return self._ok(
+                    "No clear speech detected.",
+                    {
+                        "heard_text": "",
+                        "silent": True,
+                        "meta": "VOICE / NO SPEECH",
+                    },
+                )
+            except sr.RequestError as exc:
+                return self._fail(f"Speech recognition service error: {exc}")
+
+            if not heard_text:
+                return self._ok(
+                    "No speech detected.",
+                    {
+                        "heard_text": "",
+                        "silent": True,
+                        "meta": "VOICE / EMPTY",
+                    },
+                )
+
+            return self._ok(
+                "Voice captured.",
+                {
+                    "heard_text": heard_text,
+                    "silent": False,
+                    "meta": "VOICE / RAW",
+                },
+            )
+
+        except sr.WaitTimeoutError:
+            return self._ok(
+                "Voice timeout.",
+                {
+                    "heard_text": "",
+                    "silent": True,
+                    "meta": "VOICE / TIMEOUT",
+                },
+            )
+        except Exception as exc:
+            return {
+                "ok": False,
+                "message": f"Voice input error: {exc}",
+                "data": {
+                    "heard_text": "",
+                    "silent": True,
+                    "meta": "VOICE / ERROR",
+                    "error": traceback.format_exc(),
+                },
+            }
+
+    def _listen_once_and_execute(self) -> dict[str, Any]:
+        recognizer = sr.Recognizer()
+
+        try:
+            with sr.Microphone() as source:
+                recognizer.adjust_for_ambient_noise(source, duration=0.4)
+
+                audio = recognizer.listen(
+                    source,
+                    timeout=5,
+                    phrase_time_limit=7,
+                )
+
+            try:
+                heard_text = recognizer.recognize_google(audio).strip()
+            except sr.UnknownValueError:
+                return self._ok(
+                    "No clear speech detected.",
+                    {
+                        "reply": "No clear speech detected.",
+                        "meta": "VOICE / NO SPEECH",
+                        "heard_text": "",
+                    },
+                )
+            except sr.RequestError as exc:
+                return self._fail(f"Speech recognition service error: {exc}")
+
+            if not heard_text:
+                return self._ok(
+                    "No speech detected.",
+                    {
+                        "reply": "No speech detected.",
+                        "meta": "VOICE / EMPTY",
+                        "heard_text": "",
+                    },
+                )
+
+            result = self.runtime.send_command(text=heard_text)
+
+            return {
+                "ok": result["ok"],
+                "message": result["reply"],
+                "data": {
+                    "reply": f"Heard: {heard_text}\n\n{result['reply']}",
+                    "meta": "VOICE / COMMAND EXECUTED",
+                    "heard_text": heard_text,
+                    "raw_output": result.get("raw_output", ""),
+                    "error": result.get("error", ""),
+                },
+            }
+
+        except sr.WaitTimeoutError:
+            return self._ok(
+                "No speech detected within 5 seconds.",
+                {
+                    "reply": "No speech detected within 5 seconds.",
+                    "meta": "VOICE / TIMEOUT",
+                    "heard_text": "",
+                },
+            )
+        except Exception as exc:
+            return {
+                "ok": False,
+                "message": f"Voice input error: {exc}",
+                "data": {
+                    "reply": f"Voice input error: {exc}",
+                    "meta": "VOICE / ERROR",
+                    "error": traceback.format_exc(),
+                },
+            }
+
+
+    def _handle_chat_send(self, payload):
+        from datetime import datetime
+
+        payload = payload or {}
+        text = str(payload.get("text", "")).strip()
+        model = str(payload.get("model", "llama3.1:8b")).strip()
+
+        if not text:
+            return {
+                "ok": False,
+                "message": "Empty message.",
+                "data": {
+                    "reply": "Empty message.",
+                    "meta": "CHAT / EMPTY",
+                },
+            }
+
+        result = self.runtime.send_command(text=text, model=model)
+
+        response = {
+            "ok": bool(result.get("ok", True)),
+            "message": result.get("reply", ""),
+            "data": {
+                "reply": result.get("reply", ""),
+                "meta": result.get("meta", "CHAT / RESPONSE"),
+                "raw_output": result.get("raw_output", ""),
+                "model": result.get("model", model),
+                "should_exit": result.get("should_exit", False),
+                "error": result.get("error", ""),
+            },
+        }
+
+        try:
+            if not hasattr(self, "sync_queue"):
+                from jarvis.app.sync_queue import SyncQueue
+                self.sync_queue = SyncQueue()
+
+            if not hasattr(self, "firebase_sync"):
+                from jarvis.app.firebase_sync import FirebaseSync
+                self.firebase_sync = FirebaseSync()
+
+            user_id = "guest_user"
+            user_email = ""
+            user_name = "Guest"
+
+            try:
+                current_user = self.auth.get_current_user()
+                if current_user.get("ok"):
+                    user = current_user.get("data", {}).get("user", {})
+                    user_id = str(user.get("id") or user.get("email") or "guest_user")
+                    user_email = str(user.get("email", ""))
+                    user_name = str(user.get("name", "Guest"))
+            except Exception:
+                pass
+
+            queued = self.sync_queue.enqueue_record(
+                kind="chat_event",
+                user_id=user_id,
+                payload={
+                    "title": text[:50] or "Untitled chat event",
+                    "user": {
+                        "id": user_id,
+                        "email": user_email,
+                        "name": user_name,
+                    },
+                    "model": model,
+                    "created_at": datetime.now().isoformat(timespec="seconds"),
+                    "messages": [
+                        {
+                            "role": "user",
+                            "text": text,
+                            "created_at": datetime.now().isoformat(timespec="seconds"),
+                        },
+                        {
+                            "role": "assistant",
+                            "text": result.get("reply", ""),
+                            "meta": result.get("meta", ""),
+                            "created_at": datetime.now().isoformat(timespec="seconds"),
+                        },
+                    ],
+                    "runtime": {
+                        "ok": bool(result.get("ok", False)),
+                        "raw_output": result.get("raw_output", ""),
+                        "error": result.get("error", ""),
+                    },
+                },
+            )
+
+            upload_result = self.firebase_sync.upload_pending(self.sync_queue, limit=5)
+
+            response["data"]["sync"] = {
+                "queued": queued,
+                "upload_result": upload_result,
+            }
+
+        except Exception as exc:
+            response["data"]["sync"] = {
+                "ok": False,
+                "message": f"Sync failed but chat completed: {exc}",
+            }
+
+        return response
+
+def _handle_chat_send(self, payload: dict[str, Any]) -> dict[str, Any]:
+    text = str(payload.get("text", "")).strip()
+    model = str(payload.get("model", "llama3.1:8b")).strip()
+
+    result = self.runtime.send_command(text=text, model=model)
+
+    response = {
+        "ok": result["ok"],
+        "message": result["reply"],
+        "data": {
+            "reply": result["reply"],
+            "meta": result["meta"],
+            "raw_output": result.get("raw_output", ""),
+            "model": result.get("model", model),
+            "should_exit": result.get("should_exit", False),
+            "error": result.get("error", ""),
+        },
+    }
+
+    try:
+        current_user = self.auth.get_current_user()
+
+        if current_user.get("ok"):
+            user = current_user["data"]["user"]
+            user_id = user.get("id") or user.get("email") or "guest_user"
+            user_email = user.get("email", "")
+            user_name = user.get("name", "")
+        else:
+            user_id = "guest_user"
+            user_email = ""
+            user_name = "Guest"
+
+        queued = self.sync_queue.enqueue_record(
+            kind="chat_event",
+            user_id=str(user_id),
+            payload={
+                "title": text[:50] or "Untitled chat event",
+                "user": {
+                    "id": user_id,
+                    "email": user_email,
+                    "name": user_name,
+                },
+                "model": model,
+                "created_at": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+                "messages": [
+                    {
+                        "role": "user",
+                        "text": text,
+                    },
+                    {
+                        "role": "assistant",
+                        "text": result.get("reply", ""),
+                        "meta": result.get("meta", ""),
+                    },
+                ],
+                "runtime": {
+                    "ok": result.get("ok", False),
+                    "raw_output": result.get("raw_output", ""),
+                    "error": result.get("error", ""),
+                },
+            },
+        )
+
+        upload_result = self.firebase_sync.upload_pending(self.sync_queue, limit=5)
+
+        response["data"]["sync"] = {
+            "queued": queued,
+            "upload_result": upload_result,
+        }
+
+    except Exception as exc:
+        response["data"]["sync"] = {
+            "ok": False,
+            "message": f"Sync failed but chat completed: {exc}",
+        }
+
+    def _handle_chat_send(self, payload):
+        from datetime import datetime
+
+        text = str(payload.get("text", "")).strip()
+        model = str(payload.get("model", "llama3.1:8b")).strip()
+
+        if not text:
+            return self._fail("Empty message.")
+
+        result = self.runtime.send_command(text=text, model=model)
+
+        response = {
+            "ok": result.get("ok", True),
+            "message": result.get("reply", ""),
+            "data": {
+                "reply": result.get("reply", ""),
+                "meta": result.get("meta", "CHAT / RESPONSE"),
+                "raw_output": result.get("raw_output", ""),
+                "model": result.get("model", model),
+                "should_exit": result.get("should_exit", False),
+                "error": result.get("error", ""),
+            },
+        }
+
+        try:
+            if not hasattr(self, "sync_queue"):
+                from jarvis.app.sync_queue import SyncQueue
+                self.sync_queue = SyncQueue()
+
+            if not hasattr(self, "firebase_sync"):
+                from jarvis.app.firebase_sync import FirebaseSync
+                self.firebase_sync = FirebaseSync()
+
+            user_id = "guest_user"
+            user_email = ""
+            user_name = "Guest"
+
+            try:
+                current_user = self.auth.get_current_user()
+                if current_user.get("ok"):
+                    user = current_user.get("data", {}).get("user", {})
+                    user_id = str(user.get("id") or user.get("email") or "guest_user")
+                    user_email = str(user.get("email", ""))
+                    user_name = str(user.get("name", "Guest"))
+            except Exception:
+                pass
+
+            queued = self.sync_queue.enqueue_record(
+                kind="chat_event",
+                user_id=user_id,
+                payload={
+                    "title": text[:50] or "Untitled chat event",
+                    "user": {
+                        "id": user_id,
+                        "email": user_email,
+                        "name": user_name,
+                    },
+                    "model": model,
+                    "created_at": datetime.now().isoformat(timespec="seconds"),
+                    "messages": [
+                        {
+                            "role": "user",
+                            "text": text,
+                            "created_at": datetime.now().isoformat(timespec="seconds"),
+                        },
+                        {
+                            "role": "assistant",
+                            "text": result.get("reply", ""),
+                            "meta": result.get("meta", ""),
+                            "created_at": datetime.now().isoformat(timespec="seconds"),
+                        },
+                    ],
+                    "runtime": {
+                        "ok": result.get("ok", False),
+                        "raw_output": result.get("raw_output", ""),
+                        "error": result.get("error", ""),
+                    },
+                },
+            )
+
+            upload_result = self.firebase_sync.upload_pending(self.sync_queue, limit=5)
+
+            response["data"]["sync"] = {
+                "queued": queued,
+                "upload_result": upload_result,
+            }
+
+        except Exception as exc:
+            response["data"]["sync"] = {
+                "ok": False,
+                "message": f"Sync failed but chat completed: {exc}",
+            }
+
+        return response
+
+
+    return response
+    def _runtime_command(self, text: str, meta: str) -> dict[str, Any]:
+        result = self.runtime.send_command(text=text)
+
+        return {
+            "ok": result["ok"],
+            "message": result["reply"],
+            "data": {
+                "reply": result["reply"],
+                "meta": result.get("meta", meta),
+                "raw_output": result.get("raw_output", ""),
+                "error": result.get("error", ""),
+            },
+        }
+
+    def _handle_settings_update(self, payload: dict[str, Any]) -> dict[str, Any]:
+        section = str(payload.get("section", "")).strip()
+        key = str(payload.get("key", "")).strip()
+        value = payload.get("value")
+
+        if not section or not key:
+            return self._fail("Missing settings section/key.")
+
+        if section not in self.ui_settings:
+            self.ui_settings[section] = {}
+
+        self.ui_settings[section][key] = value
+        self._save_ui_settings()
+
+        return self._ok(
+            "Setting saved.",
+            {
+                "reply": f"Saved {section}.{key}.",
+                "meta": "SETTINGS / UPDATE",
+                "settings": self.ui_settings,
+            },
+        )
+
+    def _open_folder(self, folder_key: str) -> dict[str, Any]:
+        folder_path = self.ui_settings.get("folders", {}).get(folder_key)
+
+        if not folder_path:
+            return self._fail(f"Unknown folder: {folder_key}")
+
+        return self._open_path(
+            Path(folder_path),
+            f"Opened folder: {folder_key}",
+            "FOLDER / OPEN",
+        )
+
+    def _choose_folder(self, folder_key: str) -> dict[str, Any]:
+        if not folder_key:
+            return self._fail("Missing folder key.")
+
+        selected_path = ""
+
+        try:
+            if webview.windows:
+                result = webview.windows[0].create_file_dialog(webview.FOLDER_DIALOG)
+                if result:
+                    selected_path = str(result[0])
+        except Exception:
+            selected_path = ""
+
+        if not selected_path:
+            return self._fail("No folder selected.")
+
+        self.ui_settings.setdefault("folders", {})[folder_key] = selected_path
+        self._save_ui_settings()
+
+        return self._ok(
+            "Folder changed.",
+            {
+                "reply": f"{folder_key} folder changed to: {selected_path}",
+                "meta": "FOLDER / CHANGE",
+                "folder": folder_key,
+                "path": selected_path,
+                "settings": self.ui_settings,
+            },
+        )
+
+    def _open_path(self, path: Path, reply: str, meta: str) -> dict[str, Any]:
+        path.mkdir(parents=True, exist_ok=True)
+        os.startfile(str(path))
+
+        return self._ok(
+            reply,
+            {
+                "reply": reply,
+                "meta": meta,
+                "path": str(path),
+            },
+        )
+
+    def _get_profile_data(self) -> dict[str, Any]:
+        auth_result = self.auth.get_current_user()
+
+        if not auth_result.get("ok"):
+            return {
+                "authenticated": False,
+                "name": "",
+                "email": "",
+                "email_verified": False,
+                "accountType": "Email account required",
+                "plan": "Not signed in",
+                "gpu": "NVIDIA GeForce RTX 4060",
+                "cpu": "i5-14600K",
+                "ram": "32GB DDR5",
+            }
+
+        user = auth_result["data"]["user"]
+        system_profile_file = MEMORY_DIR / "system_profile.json"
+
+        profile = {
+            "authenticated": True,
+            "name": user.get("name", ""),
+            "email": user.get("email", ""),
+            "email_verified": user.get("email_verified", False),
+            "accountType": "Email Account",
+            "plan": "Free",
+            "gpu": "NVIDIA GeForce RTX 4060",
+            "cpu": "i5-14600K",
+            "ram": "32GB DDR5",
+        }
+
+        if system_profile_file.exists():
+            try:
+                data = json.loads(system_profile_file.read_text(encoding="utf-8"))
+
+                profile["gpu"] = data.get("gpu") or data.get("GPU") or profile["gpu"]
+                profile["cpu"] = data.get("cpu") or data.get("CPU") or profile["cpu"]
+                profile["ram"] = data.get("ram") or data.get("RAM") or profile["ram"]
+            except Exception:
+                pass
+
+        return profile
+
+    def _load_ui_settings(self) -> dict[str, Any]:
+        if not UI_SETTINGS_FILE.exists():
+            self._write_json(UI_SETTINGS_FILE, DEFAULT_UI_SETTINGS)
+            return json.loads(json.dumps(DEFAULT_UI_SETTINGS))
+
+        try:
+            loaded = json.loads(UI_SETTINGS_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            loaded = {}
+
+        merged = json.loads(json.dumps(DEFAULT_UI_SETTINGS))
+
+        for section, value in loaded.items():
+            if isinstance(value, dict) and isinstance(merged.get(section), dict):
+                merged[section].update(value)
+            else:
+                merged[section] = value
+
+        return merged
+
+    def _save_ui_settings(self) -> None:
+        self._write_json(UI_SETTINGS_FILE, self.ui_settings)
+
+    def _write_json(self, path: Path, data: dict[str, Any]) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(data, indent=2),
+            encoding="utf-8",
+        )
+
+    def _ok(self, message: str, data: dict[str, Any] | None = None) -> dict[str, Any]:
+        return {
+            "ok": True,
+            "message": message,
+            "data": data or {},
+        }
+
+    def _fail(self, message: str) -> dict[str, Any]:
+        return {
+            "ok": False,
+            "message": message,
+            "data": {
+                "reply": message,
+                "meta": "UI COMMAND / FAILED",
+            },
+        }

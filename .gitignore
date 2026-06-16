@@ -1,0 +1,76 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.env
+data/firebase/firebase_service_account.json
+data/sync/
+data/users/
+
+# Virtual environments
+.venv
+
+
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Secrets
+.env
+*.env
+tokens.json
+credentials.json
+*.key
+*.pem
+
+# Logs / private data
+logs/
+*.log
+Training_Data/
+data/privacy/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+*.spec
+
+# Node / frontend
+node_modules/
+.next/
+out/
+
+# Private/runtime Jarvis data
+data/auth/
+data/secrets/
+data/dev_mailbox/
+data/documents/
+data/pdf/input/
+data/pdf/output/
+data/pdf/text/
+data/presentations/
+data/screenshots/
+data/voice/
+data/memory/
+data/settings/
+Training_Data/
+*.mp3
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.docx
+*.pptx
+*.jsonl

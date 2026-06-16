@@ -1,0 +1,396 @@
+JARVIS VERSION ROADMAP — UPDATED
+
+VERSION 1.0 — BASE LAUNCH
+
+Goal:
+Launch Jarvis with the current working core:
+
+* App control
+* Voice output
+* Voice input
+* System control
+* Web control
+* Browser control basic
+* File/folder control basic
+* Clipboard/text control basic
+* Window management
+* Screenshot tools
+* PPT/DOCX/PDF basic creators
+* Ollama AI Brain
+* AI memory/context
+* Training_Data basic logger
+* Web reader basic
+* System info tools
+* Window/browser intelligence basic
+
+Status:
+Base core is mostly complete. Remaining 1.0 work should focus on UI, settings, first-run setup, cleanup, and packaging preparation.
+
+UPDATE 1.1 — MINI UPDATES + TRAINING_DATA FIXES
+
+Goal:
+A large collection of smaller but useful upgrades based on Training_Data, usability feedback, and missing utility actions.
+
+1. Apps Control
+
+⬜ Install/uninstall apps
+
+2. Voice Output
+
+⬜ Better voice selection in UI
+⬜ Voice speed/volume sliders in UI
+
+3. Voice Input
+
+⬜ Push-to-talk hotkey
+⬜ Visual microphone status in UI
+⬜ Better command interruption/cancel handling
+
+4. File & Folder Control
+
+⬜ Create folder
+⬜ Rename folder/file
+⬜ Move/copy files
+⬜ Delete files with confirmation
+⬜ File search by extension/content
+⬜ Recent files
+
+5. Clipboard & Text Control
+
+⬜ Clipboard history viewer in UI
+⬜ Saved snippets
+⬜ Text templates
+
+6. Window Management
+
+⬜ Window grouping
+⬜ Window layout presets
+⬜ Save/restore window layouts
+
+7. AI Brain / Training_Data Improvements
+
+🟡 Follow-up context is basic and can be made smarter later
+🟡 Some AI routing edge cases will be fixed from real user Training_Data
+
+8. Small Route/Command Improvements
+
+⬜ Better app/action aliases from Training_Data
+⬜ Better command correction suggestions
+⬜ Better failed-command retry handling
+⬜ Better “go ahead / do it / try again” handling
+⬜ Better error messages in the UI
+⬜ Better logs for failed tool executions
+
+Status:
+Update 1.1 is a refinement and utility update. It should make Jarvis smoother and less buggy without changing the full architecture.
+
+UPDATE 1.2 — MAJOR CREATIVE + SCREEN + ADVANCED INTELLIGENCE UPGRADE
+
+Goal:
+A major feature update focused on screen intelligence, OCR, advanced document generation, creator tools, automation, and deeper browser/web intelligence.
+
+1. Voice Input
+
+⬜ Better local/offline STT later
+
+2. Screenshot & Screen Intelligence
+
+⬜ OCR screenshot
+⬜ Read visible screen text
+⬜ Explain screenshot
+⬜ Extract table from screenshot
+⬜ Search text on screen
+
+3. PPT Maker Major Upgrade
+
+⬜ Better templates
+⬜ Better content generation
+⬜ Images/icons/charts
+⬜ Slide count selection
+⬜ School/business modes
+⬜ Theme selector
+
+4. Document / DOCX Maker Major Upgrade
+
+⬜ Better formatting
+⬜ Better outlines
+⬜ Table support
+⬜ School essay/report modes
+⬜ Citation/bibliography mode
+
+5. PDF Tools Major Upgrade
+
+⬜ Better PDF UI
+⬜ PDF compression
+⬜ PDF to images
+⬜ OCR PDF
+⬜ Merge selected PDFs
+⬜ Protect/unprotect if legal/allowed
+
+6. Advanced Web / Browser Intelligence
+
+🟡 Web facts are now safer, but advanced web-reading still needs future work
+🟡 True browser tab intelligence requires browser extension later
+⬜ Browser extension later
+⬜ Advanced webpage reading
+⬜ Browser-authenticated webpage reading
+⬜ Read all open browser tabs
+⬜ Close inactive tab by exact title
+⬜ Switch inactive tab by exact title
+⬜ Read current page DOM/text through extension
+⬜ Summarize current webpage from active tab
+⬜ Extract links from active tab
+⬜ Extract tables from active tab
+⬜ Save/restore browser tab sessions
+⬜ Detect phishing/scam pages
+
+7. Creator Modules
+
+⬜ Image Generator v1
+⬜ Image Editing v1
+⬜ Spreadsheet / Excel Maker v1
+⬜ Notes Maker v1
+⬜ Code Helper inside Jarvis
+⬜ Media Tools v1
+
+8. Automation Modules
+
+⬜ Routine / Macro system
+⬜ Study mode
+⬜ Coding mode
+⬜ Gaming mode
+⬜ Morning startup routine
+⬜ Open multiple apps/websites together
+⬜ Close distraction apps
+⬜ Run command chains
+⬜ Scheduled tasks
+⬜ Backup routine
+
+Status:
+Update 1.2 is the major expansion update. It should make Jarvis much more powerful, creative, and intelligent.
+
+UPDATE 1.3 — PATCHES + POLISH + OVERALL IMPROVEMENTS
+
+Goal:
+A mixed update after 1.1 and 1.2, focused on stability, polish, UI improvements, performance, bug fixes, and improvements from real user Training_Data.
+
+Possible 1.3 scope:
+
+⬜ Patch issues found after 1.1 and 1.2
+⬜ Improve UI responsiveness
+⬜ Improve command routing accuracy
+⬜ Improve voice timing and interruption
+⬜ Improve app startup speed
+⬜ Improve installer experience
+⬜ Improve diagnostics upload flow
+⬜ Improve privacy/redaction system
+⬜ Add more templates, themes, and presets
+⬜ Add more app aliases from user logs
+⬜ Add more automation presets
+⬜ Improve creator module quality from feedback
+
+Status:
+Update 1.3 is not fixed yet. It should be shaped after real-world use of versions 1.0, 1.1, and 1.2.
+
+REMAINING CHECKLIST AFTER REMOVING COMPLETED ITEMS + YOUR 1.1/1.2 ITEMS
+
+These are the items still left outside the update list you gave.
+
+1. Core Foundation
+
+🟡 Proper full production logging system
+⬜ App-wide config/settings manager
+⬜ App version system
+⬜ First-run setup system
+⬜ Release folder cleanup
+
+Status:
+Needed for polished 1.0 release.
+
+2. Apps Control
+
+🟡 Microsoft Store/UWP support tested but postponed
+
+Status:
+Not included in your 1.1/1.2 list except install/uninstall apps. Full UWP support can be moved to 1.3 or installer-era polish.
+
+3. Voice Output
+
+🟡 Voice personality/tone tuning later
+
+Status:
+Not assigned to 1.1/1.2. Can be 1.3 polish.
+
+4. System Controls
+
+🟡 CPU name detection can be improved later from raw Intel family string
+⬜ Better public internet IP detection
+⬜ More detailed network adapter info
+⬜ Better motherboard temperature/fan data if hardware exposes sensors
+
+Status:
+These are system-info polish items. Best for 1.3 unless needed earlier.
+
+5. Web Control
+
+🟡 Some websites may block scraping or change layout
+⬜ Webpage source citation/export system
+
+Status:
+Advanced web reading moved to 1.2. Citation/export can be 1.3 or part of creator/research upgrades.
+
+6. Browser Control
+
+🟡 Current URL/title requires active browser focus
+
+Status:
+True inactive-tab intelligence moved to 1.2 through browser extension. This limitation remains until then.
+
+7. File & Folder Control
+
+🟡 Some folder close commands depend on visible File Explorer window titles
+
+Status:
+Mostly acceptable for 1.0. Can be patched through Training_Data in 1.1/1.3.
+
+8. Window Management
+
+🟡 Better active-window detection later
+
+Status:
+Window grouping/layout features moved to 1.1. Better active-window detection remains polish.
+
+9. Training_Data Logging System
+
+⬜ Log full command timings
+⬜ Log environment/system snapshot at startup
+⬜ Log settings snapshot
+⬜ Log memory changes separately
+⬜ Log voice raw/corrected text in detail
+⬜ Add redaction filter
+⬜ Add export logs button in UI
+⬜ Add delete logs button in UI
+⬜ Add diagnostics upload only after user opt-in
+⬜ Add privacy policy consent screen before uploads
+
+Status:
+Training_Data basic logger is complete. Production-grade Training_Data should be completed before public installer release.
+
+10. Privacy / Consent / Upload System
+
+⬜ Local-only history by default
+⬜ Upload disabled by default
+⬜ User must tick consent checkbox
+⬜ Privacy policy shown before enabling upload
+⬜ Explain what data is collected
+⬜ Explain why it is collected
+⬜ Explain how to disable it
+⬜ Explain how to delete local logs
+⬜ Add “Export logs” button
+⬜ Add “Delete Training_Data” button
+⬜ Add “Send diagnostics to developers” button
+⬜ Never upload API keys, passwords, tokens, private files, or personal documents
+⬜ Redaction filter before upload
+⬜ Upload only logs/history, not full user files
+⬜ User can view files before upload
+⬜ Add app setting: Allow diagnostics upload = false by default
+
+Status:
+Must be completed before any distributed version uploads diagnostics. Should be after UI and before installer/public release.
+
+11. UI App
+
+⬜ Desktop UI
+⬜ Chat screen
+⬜ Sidebar
+⬜ Module buttons
+⬜ Command history
+⬜ Logs panel
+⬜ Voice toggle
+⬜ Mic button
+⬜ Continuous listening indicator
+⬜ AI status indicator
+⬜ Current model indicator
+⬜ Settings page
+⬜ Theme selection
+⬜ System status panel
+⬜ Output folders shortcuts
+⬜ Training_Data viewer
+⬜ Privacy/diagnostics consent checkbox
+
+Status:
+This is the main remaining 1.0 launch work.
+
+12. Settings System
+
+⬜ Persistent assistant name
+⬜ Persistent voice on/off
+⬜ Voice speed
+⬜ Voice volume
+⬜ Preferred browser
+⬜ Default search engine
+⬜ Default folders
+⬜ AI model settings
+⬜ Ollama base URL
+⬜ AI keep_alive
+⬜ UI theme
+⬜ Safe mode settings
+⬜ Diagnostics upload setting
+⬜ Directories tab:
+
+* screenshots
+* coding files
+* PDF
+* Excel
+* notes
+* documents
+* presentations
+* image generation
+* media
+* Training_Data
+
+Status:
+Needed for 1.0 UI/settings base.
+
+13. Release / Packaging
+
+⬜ Clean debug/test files
+⬜ Final project structure
+⬜ Requirements lock check
+⬜ EXE build
+⬜ Installer
+⬜ Desktop shortcut
+⬜ Start menu shortcut
+⬜ First-run setup
+⬜ Dependency checks
+⬜ Ollama installation detection
+⬜ Model installation detection
+⬜ D-drive model path option
+⬜ Version number
+⬜ Release notes
+⬜ Privacy policy page
+⬜ Diagnostics consent checkbox
+⬜ Uninstaller
+
+Status:
+This is after UI and settings base are complete.
+
+FINAL CLEAR VIEW
+
+Version 1.0 remaining major work:
+⬜ UI App
+⬜ Settings System
+⬜ First-run setup
+⬜ App version system
+⬜ Production Training_Data polishing
+⬜ Privacy/diagnostics consent system
+⬜ EXE + installer packaging
+
+Version 1.1:
+Mini utility and refinement update from your selected checklist.
+
+Version 1.2:
+Major screen intelligence, creator modules, advanced browser/web, and automation update.
+
+Version 1.3:
+Patch, polish, performance, feedback, and post-launch improvements.

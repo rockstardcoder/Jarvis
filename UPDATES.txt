@@ -1,0 +1,111 @@
+git config --global user.name "rockstardcoder"
+git config --global user.email "rockstarthegamer12@gmail.com"
+
+upgrade package 1
+
+Install/Uninstall Apps
+Gemini not working
+Jarvis wont read useless things like url,directories,errors
+Better PPTS
+image editing
+pdf
+word/docs
+notes
+code helper
+media tools
+fast response
+
+
+Default Setup Suggestions
+default browser
+default search engine
+better listening. so when you are speaking it should hear fast and then it should show in the input bar and then when a gap of 3 seconds or smth it will send as the user.
+
+AI
+alias should be trained when using and get better every time
+the input is slow and takes less input and more of crap
+it should grasp everything from the input and one sentence can have multiple commands like : open notepad, then write what i will be dictating (which should be fast), then open comet and search for latest python version and download it and update python. then open youtube and check for and new videos
+There is a automatic PIP (dont know the name) which scans your pc and recommends you a good local free ai model so that will be done in the installation part.
+JARVIS should have memory like other chatgpt and stuff.
+
+PPT ✅ PPT Maker v1 complete
+🟡 Future update needed for:
+- Better slide content
+- More professional layouts
+- More themes
+- Images/icons
+- Charts
+- AI-generated outline
+- User-selected slide count
+- Export templates
+- Better school/business modes
+
+
+
+UPDATE 1.1
+⬜ Install/uninstall apps
+⬜ Better voice selection in UI
+⬜ Voice speed/volume sliders in UI
+⬜ Push-to-talk hotkey
+⬜ Better local/offline STT later
+⬜ Visual microphone status in UI
+⬜ Better command interruption/cancel handling
+⬜ Create folder
+⬜ Rename folder/file
+⬜ Move/copy files
+⬜ Delete files with confirmation
+⬜ File search by extension/content
+⬜ Recent files
+⬜ Clipboard history viewer in UI
+⬜ Saved snippets
+⬜ Text templates
+⬜ OCR screenshot
+⬜ Read visible screen text
+⬜ Explain screenshot
+⬜ Extract table from screenshot
+⬜ Search text on screen
+⬜ Better templates
+⬜ Better content generation
+⬜ Images/icons/charts
+⬜ Slide count selection
+⬜ School/business modes
+⬜ Theme selector
+⬜ Better formatting
+⬜ Better outlines
+⬜ Table support
+⬜ School essay/report modes
+⬜ Citation/bibliography mode
+⬜ Better PDF UI
+⬜ PDF compression
+⬜ PDF to images
+⬜ OCR PDF
+⬜ Merge selected PDFs
+⬜ Protect/unprotect if legal/allowed
+⬜ Window grouping
+⬜ Window layout presets
+⬜ Save/restore window layouts
+🟡 Follow-up context is basic and can be made smarter later
+🟡 Some AI routing edge cases will be fixed from real user Training_Data
+🟡 Web facts are now safer, but advanced web-reading still needs future work
+🟡 True browser tab intelligence requires browser extension later
+Creator Modules Still Left
+⬜ Image Generator v1
+⬜ Image Editing v1
+⬜ Spreadsheet / Excel Maker v1
+⬜ Notes Maker v1
+⬜ Code Helper inside Jarvis
+⬜ Media Tools v1
+⬜ Routine / Macro system
+⬜ Study mode
+⬜ Coding mode
+⬜ Gaming mode
+⬜ Morning startup routine
+⬜ Open multiple apps/websites together
+⬜ Close distraction apps
+⬜ Run command chains
+⬜ Scheduled tasks
+⬜ Backup routine
+
+
+
+

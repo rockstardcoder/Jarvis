@@ -29,7 +29,7 @@ jobs:
       - name: Create installed launcher
         shell: powershell
         run: |
-           = @"
+          $launcher = @'
           @echo off
           setlocal enabledelayedexpansion
 
@@ -103,8 +103,7 @@ jobs:
           where ollama >nul 2>nul
           if errorlevel 1 (
               echo Ollama not found. Installing Ollama silently...
-
-              powershell -NoProfile -ExecutionPolicy Bypass -Command "='https://ollama.com/download/OllamaSetup.exe'; =Join-Path C:\Users\Hitman\AppData\Local\Temp 'OllamaSetup.exe'; Invoke-WebRequest  -OutFile ; Start-Process  -ArgumentList '/S' -Wait"
+              powershell -NoProfile -ExecutionPolicy Bypass -Command "$url='https://ollama.com/download/OllamaSetup.exe'; $out=Join-Path $env:TEMP 'OllamaSetup.exe'; Invoke-WebRequest $url -OutFile $out; Start-Process $out -ArgumentList '/S' -Wait"
 
               where ollama >nul 2>nul
               if errorlevel 1 (
@@ -160,18 +159,18 @@ jobs:
           echo [ERROR] Could not find Jarvis startup file.
           pause
           exit /b 1
-          "@
+          '@
 
-           =  -replace "          ", ""
-          Set-Content -Path "JarvisLauncher.bat" -Value  -Encoding ASCII
-          Set-Content -Path "Jarvis.cmd" -Value  -Encoding ASCII
+          $launcher = $launcher -replace "(?m)^          ", ""
+          Set-Content -Path "JarvisLauncher.bat" -Value $launcher -Encoding ASCII
+          Set-Content -Path "Jarvis.cmd" -Value $launcher -Encoding ASCII
 
       - name: Create Inno Setup installer script
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force installer | Out-Null
 
-           = @"
+          $iss = @'
           #define MyAppName "Jarvis AI"
           #define MyAppVersion "1.0.0"
           #define MyAppPublisher "CoderBoiii"
@@ -203,10 +202,10 @@ jobs:
 
           [Run]
           Filename: "{cmd}"; Parameters: "/k ""{app}\JarvisLauncher.bat"""; WorkingDir: "{app}"; Flags: nowait skipifsilent
-          "@
+          '@
 
-           =  -replace "          ", ""
-          Set-Content -Path "installer/JarvisSetup.iss" -Value  -Encoding ASCII
+          $iss = $iss -replace "(?m)^          ", ""
+          Set-Content -Path "installer/JarvisSetup.iss" -Value $iss -Encoding ASCII
 
       - name: Install Inno Setup on GitHub runner
         shell: powershell

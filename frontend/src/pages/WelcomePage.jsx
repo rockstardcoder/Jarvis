@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import {
   ArrowLeft,
   Eye,
@@ -49,17 +49,26 @@ export default function WelcomePage({ onAuthSuccess }) {
       setLoading(false);
       setStatus(result.message || "Verification code created.");
 
+      if (result.ok && result.data?.user) {
+        onAuthSuccess(result.data.user);
+        return;
+      }
+
       if (result.ok) {
         setPendingEmail(result.data.email);
         setDevCode(result.data.dev_code || "");
         setMode("verify");
+        return;
       }
+
+      setLoginError(result.message || "Signup failed.");
     }, 950);
   };
 
   const resendCode = async () => {
     setLoading(true);
     setStatus("Resending verification code...");
+    setLoginError("");
 
     const result = await callJarvis("auth.signup_start", {
       ...signupForm,
@@ -73,13 +82,17 @@ export default function WelcomePage({ onAuthSuccess }) {
       if (result.ok) {
         setPendingEmail(result.data.email);
         setDevCode(result.data.dev_code || "");
+        return;
       }
+
+      setLoginError(result.message || "Could not resend code.");
     }, 750);
   };
 
   const verifySignup = async () => {
     setLoading(true);
     setStatus("Verifying email...");
+    setLoginError("");
 
     const result = await callJarvis("auth.signup_verify", {
       email: pendingEmail,
@@ -92,7 +105,10 @@ export default function WelcomePage({ onAuthSuccess }) {
 
       if (result.ok && result.data?.user) {
         onAuthSuccess(result.data.user);
+        return;
       }
+
+      setLoginError(result.message || "Verification failed.");
     }, 700);
   };
 
@@ -109,6 +125,13 @@ export default function WelcomePage({ onAuthSuccess }) {
 
       if (result.ok && result.data?.user) {
         onAuthSuccess(result.data.user);
+        return;
+      }
+
+      if (result.ok && result.data?.needs_verification) {
+        setPendingEmail(result.data.email || loginForm.email);
+        setDevCode(result.data.dev_code || "");
+        setMode("verify");
         return;
       }
 
@@ -224,7 +247,11 @@ export default function WelcomePage({ onAuthSuccess }) {
             <p className="text-center text-sm text-secondary">
               Don&apos;t have an account?{" "}
               <button
-                onClick={() => setMode("signup")}
+                onClick={() => {
+                  setLoginError("");
+                  setStatus("Create your Jarvis account.");
+                  setMode("signup");
+                }}
                 className="font-semibold text-primary-container hover:underline"
               >
                 Create account
@@ -254,13 +281,15 @@ export default function WelcomePage({ onAuthSuccess }) {
             <AuthInput
               icon={Lock}
               label="Password"
-              placeholder="Minimum 8 characters"
+              placeholder="Minimum 6 characters"
               type={showPassword ? "text" : "password"}
               value={signupForm.password}
               onChange={(value) => setSignupForm({ ...signupForm, password: value })}
               rightIcon={showPassword ? EyeOff : Eye}
               onRightIconClick={() => setShowPassword(!showPassword)}
             />
+
+            {loginError && <p className="auth-error-text">{loginError}</p>}
 
             <button onClick={startSignup} disabled={loading} className="auth-primary">
               {loading ? <DotSpinner size="sm" /> : <UserPlus size={18} />}
@@ -270,7 +299,11 @@ export default function WelcomePage({ onAuthSuccess }) {
             <p className="text-center text-sm text-secondary">
               Already have an account?{" "}
               <button
-                onClick={() => setMode("login")}
+                onClick={() => {
+                  setLoginError("");
+                  setStatus("Use your email account to continue.");
+                  setMode("login");
+                }}
                 className="font-semibold text-primary-container hover:underline"
               >
                 Login
@@ -295,6 +328,8 @@ export default function WelcomePage({ onAuthSuccess }) {
               onChange={(e) => setCode(e.target.value)}
             />
 
+            {loginError && <p className="auth-error-text">{loginError}</p>}
+
             <button onClick={verifySignup} disabled={loading} className="auth-primary">
               {loading ? <DotSpinner size="sm" /> : <Lock size={18} />}
               Verify Email
@@ -308,7 +343,10 @@ export default function WelcomePage({ onAuthSuccess }) {
             <p className="text-center text-sm text-secondary">
               Wrong email?{" "}
               <button
-                onClick={() => setMode("signup")}
+                onClick={() => {
+                  setLoginError("");
+                  setMode("signup");
+                }}
                 className="font-semibold text-primary-container hover:underline"
               >
                 Edit details

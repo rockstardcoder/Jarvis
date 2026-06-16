@@ -139,8 +139,11 @@ class TTSService:
                         speaker
                     )
 
+                    # SVSFlagsAsync = 1
+                    # This prevents SAPI from blocking the TTS worker while the UI waits for backend return.
                     speaker.Speak(
-                        text
+                        text,
+                        1
                     )
 
                 except BaseException:
@@ -214,17 +217,25 @@ class TTSService:
         ):
             return False
 
-        if self.speech_queue.unfinished_tasks > 1:
-            return False
+        # If speech is backed up, drop old queued speech.
+        # UI text must never wait behind voice output.
+        try:
+            while self.speech_queue.qsize() > 0:
+                try:
+                    self.speech_queue.get_nowait()
+                    self.speech_queue.task_done()
+                except BaseException:
+                    break
+        except BaseException:
+            pass
 
         try:
-            self.speech_queue.put(
+            self.speech_queue.put_nowait(
                 cleaned_text
             )
 
-            if wait:
-                return self.wait_until_done()
-
+            # For desktop UI responsiveness, never block waiting for TTS.
+            # Even if caller passes wait=True, voice should not delay text output.
             return True
 
         except BaseException:

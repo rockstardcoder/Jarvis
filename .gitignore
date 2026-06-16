@@ -74,3 +74,17 @@ Training_Data/
 *.docx
 *.pptx
 *.jsonl
+# Firebase / auth secrets
+.env
+.env.local
+firebase-service-account.json
+*serviceAccount*.json
+*firebase-adminsdk*.json
+
+# Private auth/runtime data
+data/auth/
+data/secrets/
+data/dev_mailbox/
+data/memory/
+data/settings/
+Training_Data/

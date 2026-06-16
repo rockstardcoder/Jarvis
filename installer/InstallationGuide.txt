@@ -1,0 +1,31 @@
+﻿JARVIS DESKTOP ASSISTANT - INSTALLATION GUIDE
+
+1. Run JarvisSetup.exe.
+2. Read the Privacy Policy shown by the installer.
+3. Select the installation folder.
+4. Manually tick the privacy policy acceptance checkbox.
+5. Continue installation.
+6. The installer will copy Jarvis files, create shortcuts, scan dependencies, install required runtime tools when missing, create the Python environment, and optionally download the Ollama model llama3.1:8b.
+7. After installation, launch Jarvis from the Start Menu or Desktop shortcut.
+
+DEPENDENCIES
+
+Jarvis requires:
+- Python 3.11
+- uv for Python environment setup
+- Ollama for local AI model execution
+- llama3.1:8b model for local AI chat
+- Windows WebView/Chromium backend through pywebview
+- Python packages from pyproject.toml
+- Prebuilt React frontend from frontend/dist
+
+The installer does not require Node/npm for normal users because the frontend is already built before packaging.
+
+UNINSTALLATION
+
+Use Windows Settings > Apps > Installed Apps > Jarvis > Uninstall, or use the Start Menu shortcut "Uninstall Jarvis".
+
+NOTES
+
+The Ollama model download may be large and can take time depending on internet speed.
+Some features such as microphone input, window control, screenshots, and local file operations may require Windows permissions.

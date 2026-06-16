@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import traceback
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -295,6 +296,15 @@ class WebviewBridge:
                     password=str(payload.get("password", "")),
                 )
 
+            if command == "auth.login_google":
+                return self.auth.login_google(
+                    id_token=str(payload.get("id_token", "")),
+                    provider=str(payload.get("provider", "google")),
+                    email=str(payload.get("email", "")),
+                    name=str(payload.get("name", "")),
+                    photo_url=str(payload.get("photo_url", "")),
+                )
+
             if command == "auth.logout":
                 return self.auth.logout()
 
@@ -582,8 +592,6 @@ class WebviewBridge:
 
 
     def _handle_chat_send(self, payload):
-        from datetime import datetime
-
         payload = payload or {}
         text = str(payload.get("text", "")).strip()
         model = str(payload.get("model", "llama3.1:8b")).strip()
@@ -610,8 +618,30 @@ class WebviewBridge:
                 "model": result.get("model", model),
                 "should_exit": result.get("should_exit", False),
                 "error": result.get("error", ""),
+                "sync": {
+                    "queued_background": True,
+                    "message": "Chat sync will run in background.",
+                },
             },
         }
+
+        try:
+            thread = threading.Thread(
+                target=self._sync_chat_event_background,
+                args=(text, model, result),
+                daemon=True,
+            )
+            thread.start()
+        except Exception as exc:
+            response["data"]["sync"] = {
+                "ok": False,
+                "message": f"Background sync could not start: {exc}",
+            }
+
+        return response
+
+    def _sync_chat_event_background(self, text: str, model: str, result: dict) -> None:
+        from datetime import datetime
 
         try:
             if not hasattr(self, "sync_queue"):
@@ -636,7 +666,7 @@ class WebviewBridge:
             except Exception:
                 pass
 
-            queued = self.sync_queue.enqueue_record(
+            self.sync_queue.enqueue_record(
                 kind="chat_event",
                 user_id=user_id,
                 payload={
@@ -669,20 +699,11 @@ class WebviewBridge:
                 },
             )
 
-            upload_result = self.firebase_sync.upload_pending(self.sync_queue, limit=5)
+            self.firebase_sync.upload_pending(self.sync_queue, limit=5)
 
-            response["data"]["sync"] = {
-                "queued": queued,
-                "upload_result": upload_result,
-            }
-
-        except Exception as exc:
-            response["data"]["sync"] = {
-                "ok": False,
-                "message": f"Sync failed but chat completed: {exc}",
-            }
-
-        return response
+        except Exception:
+            # Chat must never be delayed or broken because sync failed.
+            pass
 
 
     def _ok(self, message: str = "OK", data: dict | None = None) -> dict:

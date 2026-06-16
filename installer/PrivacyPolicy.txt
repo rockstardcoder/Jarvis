@@ -1,0 +1,88 @@
+﻿JARVIS DESKTOP ASSISTANT PRIVACY POLICY
+
+Effective date: 16 June 2026
+
+This Privacy Policy explains how Jarvis Desktop Assistant handles information during installation and use. You must read and accept this policy before installing Jarvis.
+
+1. Overview
+
+Jarvis is a desktop assistant application designed to run on Windows. It may provide chat, voice, local automation, app control, file utilities, document generation, PDF tools, screenshots, system information, authentication, diagnostics, and optional cloud sync features.
+
+2. Local-first operation
+
+Jarvis is designed to store most operational data locally on your computer. This may include settings, chat data, memory files, logs, generated files, diagnostic information, authentication session data, and app configuration.
+
+3. Data Jarvis may process locally
+
+Jarvis may process:
+- Account email and display name.
+- Login/session information.
+- Chat messages typed by the user.
+- Assistant replies.
+- Voice input when microphone features are used.
+- Text-to-speech output text.
+- Local app names and window titles for app/window control.
+- File names and file paths when file tools are used.
+- Document, presentation, PDF, screenshot, and note data created through Jarvis.
+- System information such as CPU, GPU, RAM, operating system, and runtime status.
+- Diagnostic logs and training/debug records.
+
+4. Authentication
+
+Jarvis may use Firebase Authentication for email/password login and account-related features. Authentication data is processed by Firebase according to Firebase/Google terms and policies. Jarvis may store local session files to keep the user signed in.
+
+5. Cloud sync
+
+Jarvis may include Firebase or Firestore sync features. If cloud sync is enabled, selected records such as chat events, user profile information, or diagnostic data may be uploaded to a Firebase project configured by the developer. Cloud sync should not be used with private or sensitive content unless you understand and accept the risks.
+
+6. Local AI and Ollama
+
+Jarvis may use Ollama to run local AI models such as llama3.1:8b. Local AI processing may occur on your device. The installer may download the selected model from Ollama if you choose that installation option.
+
+7. Online AI providers
+
+Jarvis may support cloud AI providers. If you configure a cloud AI provider or API key, prompts, messages, and related context may be sent to that provider. The provider's own privacy policy applies.
+
+8. Voice features
+
+Jarvis may include speech recognition and text-to-speech features. Depending on the configured speech recognition mode, audio or recognized speech may be processed locally or by a third-party speech service. Microphone features are used only when enabled or activated by the user.
+
+9. Diagnostics and logs
+
+Jarvis may create diagnostic logs to help debug app behavior. Logs may include commands, errors, tool outputs, timestamps, runtime states, and other technical information. Logs should be reviewed before sharing because they may contain personal information.
+
+10. File and system access
+
+Jarvis includes tools that may open apps, control windows, read or write files, create documents, create presentations, handle PDFs, use the clipboard, capture screenshots, or access system information. These features can affect local files and running applications. Use them carefully.
+
+11. Secrets and credentials
+
+Developer builds must not be distributed with private API keys, Firebase service account files, .env files, OAuth secrets, cloud credentials, or other sensitive credentials. Anyone with access to such secrets may be able to misuse connected services.
+
+12. Installer dependency checks
+
+During installation, the installer may scan whether required tools are already installed, including Python, uv, and Ollama. If missing, the installer may download/install required components using system tools such as winget or official installation scripts. These third-party tools have their own license and privacy terms.
+
+13. Data deletion
+
+Uninstalling Jarvis removes installed application files. Some user data, model files, logs, Firebase accounts, cloud data, Ollama models, or dependency tools may remain unless removed separately. Ollama models and globally installed tools are not automatically deleted by Jarvis uninstall because they may be used by other applications.
+
+14. User responsibility
+
+You are responsible for what you type, upload, generate, automate, sync, or share using Jarvis. Do not use Jarvis to process sensitive information unless you understand where that data is stored and whether it may be sent to third-party services.
+
+15. Children and minors
+
+If the user is a minor, a parent or guardian should review and approve installation and usage. Jarvis may interact with local files, apps, online services, and cloud providers depending on configuration.
+
+16. No sale of personal data
+
+This developer build of Jarvis is not intended to sell personal data. If future versions introduce analytics, telemetry, subscription systems, or third-party integrations, this policy should be updated.
+
+17. Changes
+
+This policy may be updated in future versions. You should review the policy during installation or updates.
+
+18. Acceptance
+
+By ticking the installer acceptance checkbox and continuing installation, you confirm that you have read this Privacy Policy, understand the data handling described above, and agree to install and use Jarvis under these terms.

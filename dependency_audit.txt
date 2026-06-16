@@ -1,0 +1,907 @@
+JARVIS DEPENDENCY AUDIT
+Generated: 06/16/2026 19:14:43
+Project: D:\1\1\Coding\Files\Python\Jarvis
+
+==================== SYSTEM TOOLS ====================
+
+--- python ---
+Path: D:\1\1\Coding\Files\Python\Jarvis\.venv/Scripts\python.exe
+Python 3.11.9
+
+--- pip ---
+Path: C:\Program Files\Python314\Scripts\pip.exe
+pip 26.1.1 from C:\Users\Hitman\AppData\Roaming\Python\Python314\site-packages\pip (python 3.14)
+
+
+--- node ---
+Path: C:\Program Files\nodejs\node.exe
+v24.16.0
+
+--- npm ---
+Path: C:\Program Files\nodejs\npm.ps1
+11.13.0
+
+--- git ---
+Path: C:\Program Files\Git\cmd\git.exe
+git version 2.54.0.windows.1
+
+--- ollama ---
+Path: C:\Users\Hitman\AppData\Local\Programs\Ollama\ollama.exe
+ollama version is 0.30.8
+
+--- uv ---
+Path: C:\Users\Hitman\.local\bin\uv.exe
+uv 0.11.17 (a33a629d6 2026-05-28 x86_64-pc-windows-msvc)
+
+==================== PROJECT FILES ====================
+MISSING: requirements.txt
+FOUND: pyproject.toml
+FOUND: uv.lock
+MISSING: package.json
+MISSING: package-lock.json
+FOUND: frontend\package.json
+FOUND: frontend\package-lock.json
+FOUND: frontend\vite.config.js
+MISSING: frontend\vite.config.ts
+FOUND: .env
+FOUND: frontend\.env
+
+==================== PYTHON REQUIREMENTS FILE ====================
+No requirements.txt found.
+
+==================== PYPROJECT ====================
+[project]
+name = "jarvis"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "edge-tts>=7.2.8",
+    "firebase-admin>=7.4.0",
+    "google-genai>=2.8.0",
+    "pillow>=12.2.0",
+    "psutil>=7.2.2",
+    "pyaudio>=0.2.14",
+    "pydantic>=2.13.4",
+    "pypdf>=6.13.2",
+    "python-docx>=1.2.0",
+    "python-dotenv>=1.2.2",
+    "python-pptx>=1.0.2",
+    "pywebview>=6.2.1",
+    "pywin32>=312",
+    "requests>=2.34.2",
+    "rich>=15.0.0",
+    "speechrecognition>=3.16.1",
+]
+
+==================== PIP INSTALLED PACKAGES IN CURRENT ENV ====================
+D:\1\1\Coding\Files\Python\Jarvis\.venv\Scripts\python.exe: No module named pip
+
+==================== FRONTEND PACKAGE.JSON ====================
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "firebase": "^12.14.0",
+    "lucide-react": "^1.18.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.5.0",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^3.4.19",
+    "vite": "^8.0.12"
+  }
+}
+
+==================== NPM TOP-LEVEL PACKAGES ====================
+frontend@0.0.0 D:\1\1\Coding\Files\Python\Jarvis\frontend
+Gö£GöÇGöÇ @eslint/js@10.0.1
+Gö£GöÇGöÇ @types/react-dom@19.2.3
+Gö£GöÇGöÇ @types/react@19.2.17
+Gö£GöÇGöÇ @vitejs/plugin-react@6.0.2
+Gö£GöÇGöÇ autoprefixer@10.5.0
+Gö£GöÇGöÇ clsx@2.1.1
+Gö£GöÇGöÇ eslint-plugin-react-hooks@7.1.1
+Gö£GöÇGöÇ eslint-plugin-react-refresh@0.5.3
+Gö£GöÇGöÇ eslint@10.5.0
+Gö£GöÇGöÇ firebase@12.14.0
+Gö£GöÇGöÇ globals@17.6.0
+Gö£GöÇGöÇ lucide-react@1.18.0
+Gö£GöÇGöÇ postcss@8.5.15
+Gö£GöÇGöÇ react-dom@19.2.7
+Gö£GöÇGöÇ react@19.2.7
+Gö£GöÇGöÇ tailwindcss@3.4.19
+GööGöÇGöÇ vite@8.0.16
+
+
+==================== OLLAMA MODELS ====================
+NAME           ID              SIZE      MODIFIED     
+llama3.1:8b    46e0c10c039e    4.9 GB    31 hours ago    
+
+==================== PYTHON IMPORT SCAN ====================
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\chat.py ---
+import re
+import time
+from jarvis.ai.llm_router import LLMRouter
+from jarvis.ai.memory_store import MemoryStore
+from jarvis.core.router import Router
+from jarvis.llm.manager import LLMManager
+from jarvis.services.training_logger import TrainingLogger
+from jarvis.services.diagnostics_manager import DiagnosticsManager
+from jarvis.services.voice.stt_service import STTService
+from jarvis.services.voice.tts_service import TTSService
+from jarvis.tools.browser_intelligence import BrowserIntelligenceTool
+from jarvis.tools.system_info import SystemInfoTool
+from jarvis.tools.tool_manager import ToolManager
+from jarvis.tools.web_reader import WebReaderTool
+from jarvis.tools.window_intelligence import WindowIntelligenceTool
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\main.py ---
+from jarvis.core.assistant import Assistant
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\run_commands.py ---
+from jarvis.core.router import Router
+from jarvis.tools.tool_manager import ToolManager
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_ai_complete.py ---
+from jarvis.ai.llm_router import LLMRouter
+from jarvis.ai.memory_store import MemoryStore
+from jarvis.tools.system_info import SystemInfoTool
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_browser_control.py ---
+from jarvis.services.browser_control import BrowserControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_clipboard_control.py ---
+from jarvis.services.clipboard_control import ClipboardControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_close.py ---
+from jarvis.tools.close_app import CloseAppTool
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_discovery.py ---
+from jarvis.services.app_discovery import AppDiscovery
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_document_maker.py ---
+from jarvis.services.document_maker import DocumentMaker
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_file_control.py ---
+from jarvis.services.file_control import FileControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_gemini(main).py ---
+from jarvis.config.settings import settings
+from jarvis.llm.gemini_provider import GeminiProvider
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_gemini.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_microphone.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_ollama_ai.py ---
+from jarvis.ai.llm_router import LLMRouter
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_open_app.py ---
+from jarvis.tools.open_app import OpenAppTool
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_pdf_tools.py ---
+from pathlib import Path
+from pypdf import PdfWriter
+from jarvis.services.pdf_tools import PDFTools
+from jarvis.services.pdf_tools import PDF_INPUT_DIR
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_ppt_maker.py ---
+from jarvis.services.ppt_maker import PPTMaker
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_refresh_apps.py ---
+from jarvis.services.app_discovery import AppDiscovery
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_router.py ---
+from jarvis.core.router import Router
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_scan.py ---
+from jarvis.services.app_discovery import AppDiscovery
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_screenshot_control.py ---
+from jarvis.services.screenshot_control import ScreenshotControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_system_control.py ---
+from jarvis.services.system_control import SystemControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_tool_manager.py ---
+from jarvis.tools.tool_manager import ToolManager
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_uwp_scan.py ---
+from jarvis.services.uwp_discovery import UWPDiscovery
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_voice_input.py ---
+from jarvis.services.voice.stt_service import STTService
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_voice_output.py ---
+import time
+from jarvis.services.voice.tts_service import TTSService
+from jarvis.services.voice.voice_config import VoiceConfig
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_wake_word.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_web_control.py ---
+from jarvis.services.web_control import WebControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_web_window_system_upgrade.py ---
+from jarvis.tools.browser_intelligence import BrowserIntelligenceTool
+from jarvis.tools.system_info import SystemInfoTool
+from jarvis.tools.web_reader import WebReaderTool
+from jarvis.tools.window_intelligence import WindowIntelligenceTool
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\test_window_control.py ---
+from jarvis.services.window_control import WindowControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\ui_app.py ---
+from __future__ import annotations
+import http.server
+import json
+import socket
+import socketserver
+import sys
+import threading
+import time
+import webbrowser
+from pathlib import Path
+from urllib.parse import parse_qs, unquote, urlparse
+import webview
+from jarvis.desktop.webview_bridge import WebviewBridge
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\ai\llm_router.py ---
+import json
+import re
+from jarvis.ai.ollama_client import OllamaClient
+from jarvis.ai.safety_validator import SafetyValidator
+from jarvis.ai.tool_manifest import ToolManifest
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\ai\memory_store.py ---
+import json
+import re
+from pathlib import Path
+from datetime import datetime
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\ai\ollama_client.py ---
+import json
+from pathlib import Path
+import requests
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\ai\safety_validator.py ---
+from jarvis.ai.tool_manifest import ToolManifest
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\ai\tool_manifest.py ---
+import json
+from pathlib import Path
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\ai\__init__.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\ai_provider_manager.py ---
+from __future__ import annotations
+import json
+from pathlib import Path
+from typing import Any
+from jarvis.app.local_secret_store import LocalSecretStore
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\app_state.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\auth_manager.py ---
+from __future__ import annotations
+import json
+import secrets
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+from jarvis.app.firebase.auth_client import FirebaseAuthClient, FirebaseAuthError
+from jarvis.app.firebase.admin_app import get_firestore_client
+from firebase_admin import auth as firebase_admin_auth
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\chat_file_store.py ---
+from __future__ import annotations
+import json
+import re
+import time
+from pathlib import Path
+from typing import Any
+from jarvis.app.auth_manager import AuthManager
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\email_sender.py ---
+from __future__ import annotations
+import json
+import smtplib
+import ssl
+from datetime import datetime
+from email.message import EmailMessage
+from pathlib import Path
+from typing import Any
+from jarvis.app.local_secret_store import LocalSecretStore
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\firebase_sync.py ---
+from __future__ import annotations
+import json
+import traceback
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+import firebase_admin
+from firebase_admin import credentials, firestore
+from jarvis.app.sync_queue import SyncQueue
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\jarvis_runtime.py ---
+from __future__ import annotations
+import io
+import re
+import threading
+import traceback
+from contextlib import redirect_stdout
+from typing import Any
+from chat import process_command
+from jarvis.core.router import Router
+from jarvis.llm.manager import LLMManager
+from jarvis.services.voice.stt_service import STTService
+from jarvis.services.voice.tts_service import TTSService
+from jarvis.tools.tool_manager import ToolManager
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\local_secret_store.py ---
+from __future__ import annotations
+import base64
+import json
+from pathlib import Path
+from typing import Any
+import win32crypt
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\sync_queue.py ---
+from __future__ import annotations
+import json
+import shutil
+import uuid
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\firebase\admin_app.py ---
+from __future__ import annotations
+import json
+import os
+from pathlib import Path
+from typing import Any
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\firebase\auth_client.py ---
+from __future__ import annotations
+import json
+import os
+import time
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+import requests
+from dotenv import load_dotenv
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\firebase\user_profile_store.py ---
+from __future__ import annotations
+from datetime import datetime, timezone
+from typing import Any
+from firebase_admin import firestore
+from jarvis.app.firebase.admin_app import get_firestore_client
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\app\firebase\__init__.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\config\settings.py ---
+from pydantic import BaseModel
+from dotenv import load_dotenv
+import os
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\core\assistant.py ---
+from jarvis.config.settings import settings
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\core\router.py ---
+import json
+from pathlib import Path
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\desktop\webview_bridge.py ---
+from __future__ import annotations
+import json
+import os
+import traceback
+import threading
+from pathlib import Path
+from typing import Any
+import speech_recognition as sr
+import webview
+from jarvis.app.ai_provider_manager import AIProviderManager
+from jarvis.app.auth_manager import AuthManager
+from jarvis.app.jarvis_runtime import JarvisRuntime
+from jarvis.services.diagnostics_manager import DiagnosticsManager
+from jarvis.app.chat_file_store import ChatFileStore
+from jarvis.app.email_sender import EmailSender
+from jarvis.app.firebase_sync import FirebaseSync
+from jarvis.app.sync_queue import SyncQueue
+import json
+import json
+from pathlib import Path
+from datetime import datetime
+from jarvis.app.sync_queue import SyncQueue
+from jarvis.app.firebase_sync import FirebaseSync
+from datetime import datetime
+from jarvis.app.sync_queue import SyncQueue
+from jarvis.app.firebase_sync import FirebaseSync
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\llm\base.py ---
+from abc import ABC, abstractmethod
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\llm\gemini_provider.py ---
+from google import genai
+from jarvis.llm.base import BaseLLM
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\llm\manager.py ---
+from jarvis.config.settings import settings
+from jarvis.llm.gemini_provider import GeminiProvider
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\router\router.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\app_discovery.py ---
+import json
+import re
+import string
+import winreg
+from pathlib import Path
+import win32com.client
+from jarvis.services.system_apps import SYSTEM_APPS
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\app_resolver.py ---
+import json
+from pathlib import Path
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\browser_control.py ---
+import time
+from typing import Callable
+import psutil
+import win32api
+import win32clipboard
+import win32con
+import win32gui
+import win32process
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\browser_intelligence.py ---
+import time
+import psutil
+import win32clipboard
+import win32com.client
+import win32gui
+import win32process
+from jarvis.services.window_intelligence import WindowIntelligence
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\clipboard_control.py ---
+import time
+from datetime import datetime
+import win32api
+import win32clipboard
+import win32con
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\diagnostics_manager.py ---
+import json
+from pathlib import Path
+import requests
+from jarvis.services.training_logger import PRIVACY_POLICY_FILE
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\document_maker.py ---
+import os
+import re
+from datetime import datetime
+from pathlib import Path
+from docx import Document
+from docx.enum.section import WD_SECTION
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Inches, Pt, RGBColor
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\file_control.py ---
+import json
+import os
+import time
+from difflib import SequenceMatcher
+from pathlib import Path
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\package_manager.py ---
+import subprocess
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\pdf_tools.py ---
+import os
+import re
+from datetime import datetime
+from pathlib import Path
+from PIL import Image
+from pypdf import PdfReader, PdfWriter
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\ppt_maker.py ---
+import os
+import re
+from datetime import datetime
+from pathlib import Path
+from pptx import Presentation
+from pptx.dml.color import RGBColor
+from pptx.enum.text import PP_ALIGN
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.util import Inches, Pt
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\process_manager.py ---
+from pathlib import Path
+import time
+import psutil
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\screenshot_control.py ---
+import os
+import subprocess
+import time
+from datetime import datetime
+from io import BytesIO
+from pathlib import Path
+import win32clipboard
+import win32con
+import win32gui
+from PIL import ImageGrab
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\system_apps.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\system_control.py ---
+import ctypes
+import subprocess
+import time
+import win32api
+import win32con
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\system_info.py ---
+import platform
+import socket
+import subprocess
+import time
+import psutil
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\training_logger.py ---
+import json
+import os
+import platform
+import re
+import shutil
+import time
+import traceback
+import zipfile
+from datetime import datetime
+from pathlib import Path
+import psutil
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\uwp_discovery.py ---
+import json
+import subprocess
+from pathlib import Path
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\web_control.py ---
+import json
+import subprocess
+import webbrowser
+from pathlib import Path
+from urllib.parse import quote_plus, urlparse
+from jarvis.services.app_discovery import AppDiscovery
+from jarvis.services.app_resolver import AppResolver
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\web_reader.py ---
+import re
+from urllib.parse import quote, urljoin
+import requests
+from bs4 import BeautifulSoup
+from jarvis.ai.ollama_client import OllamaClient
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\window_control.py ---
+import time
+import win32api
+import win32con
+import win32gui
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\window_intelligence.py ---
+import psutil
+import win32con
+import win32gui
+import win32process
+import subprocess
+import time
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\audio\microphone_service.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\voice\stt_service.py ---
+import json
+import re
+from pathlib import Path
+import speech_recognition as sr
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\voice\tts_service.py ---
+import queue
+import re
+import threading
+import time
+import pythoncom
+import win32com.client
+from jarvis.services.voice.voice_config import VoiceConfig
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\voice\voice_config.py ---
+import json
+from pathlib import Path
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\services\voice\wake_word_service.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\base_tool.py ---
+from abc import ABC, abstractmethod
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\browser_control.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.browser_control import BrowserControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\browser_intelligence.py ---
+from jarvis.services.browser_intelligence import BrowserIntelligence
+from jarvis.tools.base_tool import BaseTool
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\clipboard_control.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.clipboard_control import ClipboardControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\close_app.py ---
+from pathlib import Path
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.app_discovery import AppDiscovery
+from jarvis.services.app_resolver import AppResolver
+from jarvis.services.process_manager import ProcessManager
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\document_maker.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.document_maker import DocumentMaker
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\file_control.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.file_control import FileControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\list_apps.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.app_discovery import AppDiscovery
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\open_app.py ---
+import os
+import subprocess
+from pathlib import Path
+from jarvis.services.app_resolver import AppResolver
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.app_discovery import AppDiscovery
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\open_website.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\package_tool.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.package_manager import PackageManager
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\pdf_tools.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.pdf_tools import PDFTools
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\ppt_maker.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.ppt_maker import PPTMaker
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\refresh_apps.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.app_discovery import AppDiscovery
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\registry.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\screenshot_control.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.screenshot_control import ScreenshotControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\system_control.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.system_control import SystemControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\system_info.py ---
+from jarvis.services.system_info import SystemInfo
+from jarvis.tools.base_tool import BaseTool
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\test_firebase_sync.py ---
+from __future__ import annotations
+import sys
+from datetime import datetime
+from pathlib import Path
+from jarvis.app.firebase_sync import FirebaseSync
+from jarvis.app.sync_queue import SyncQueue
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\tool_manager.py ---
+from jarvis.tools.registry import ToolRegistry
+from jarvis.tools.open_app import OpenAppTool
+from jarvis.tools.close_app import CloseAppTool
+from jarvis.tools.refresh_apps import RefreshAppsTool
+from jarvis.tools.list_apps import ListAppsTool
+from jarvis.tools.system_control import SystemControlTool
+from jarvis.tools.web_control import WebControlTool
+from jarvis.tools.browser_control import BrowserControlTool
+from jarvis.tools.file_control import FileControlTool
+from jarvis.tools.clipboard_control import ClipboardControlTool
+from jarvis.tools.window_control import WindowControlTool
+from jarvis.tools.screenshot_control import ScreenshotControlTool
+from jarvis.tools.ppt_maker import PPTMakerTool
+from jarvis.tools.document_maker import DocumentMakerTool
+from jarvis.tools.pdf_tools import PDFToolsTool
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\web_control.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.web_control import WebControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\web_reader.py ---
+from jarvis.services.web_reader import WebReader
+from jarvis.tools.base_tool import BaseTool
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\window_control.py ---
+from jarvis.tools.base_tool import BaseTool
+from jarvis.services.window_control import WindowControl
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\window_intelligence.py ---
+from jarvis.services.window_intelligence import WindowIntelligence
+from jarvis.tools.base_tool import BaseTool
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\__init__.py ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\src\jarvis\tools\voice\speak_tool.py ---
+
+==================== FRONTEND IMPORT SCAN ====================
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\chat\ChatBubble.jsx ---
+import { Bot, User } from "lucide-react";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\chat\ChatInputBar.jsx ---
+import { ChevronDown, Keyboard, Mic, Send, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import VoiceActivityMeter from "./VoiceActivityMeter";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\chat\DebugStrip.jsx ---
+import { Bug, Timer } from "lucide-react";
+import { debugState } from "../../lib/mockData";
+import StatusChip from "../common/StatusChip";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\chat\ThinkingLoader.jsx ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\chat\VoiceActivityMeter.jsx ---
+import { useEffect, useRef, useState } from "react";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\common\DotSpinner.jsx ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\common\GlassCard.jsx ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\common\IconButton.jsx ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\common\JarvisLogo.jsx ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\common\StatusChip.jsx ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\common\ToggleSwitch.jsx ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\layout\AppShell.jsx ---
+import Sidebar from "./Sidebar";
+import TopBar from "./TopBar";
+import FloatingWidget from "../widget/FloatingWidget";
+import ChatPage from "../../pages/ChatPage";
+import PlansPage from "../../pages/PlansPage";
+import ProfilePage from "../../pages/ProfilePage";
+import SettingsPage from "../../pages/SettingsPage";
+import AdminPanel from "../../pages/AdminPanel";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\layout\Sidebar.jsx ---
+import {
+import { useEffect, useState } from "react";
+import JarvisLogo from "../common/JarvisLogo";
+import { callJarvis } from "../../lib/bridge";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\layout\TopBar.jsx ---
+import { Activity, Circle, Cpu, Mic } from "lucide-react";
+import { useEffect, useState } from "react";
+import StatusChip from "../common/StatusChip";
+import { callJarvis } from "../../lib/bridge";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\layout\WindowControls.jsx ---
+import { Minus, Square, X } from "lucide-react";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\modals\PrivacyDiagnosticsModal.jsx ---
+import { Shield } from "lucide-react";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\components\widget\FloatingWidget.jsx ---
+import { MessageCircle, Mic, Settings, Volume2 } from "lucide-react";
+import JarvisLogo from "../common/JarvisLogo";
+import { callJarvis } from "../../lib/bridge";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\lib\bridge.js ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\lib\firebaseAuth.js ---
+import { initializeApp } from "firebase/app";
+import {
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\lib\mockData.js ---
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\pages\AdminPanel.jsx ---
+import { useState } from "react";
+import { Activity, Bug, Cpu, Database, Gauge, Server, Shield } from "lucide-react";
+import GlassCard from "../components/common/GlassCard";
+import StatusChip from "../components/common/StatusChip";
+import { systemStatus } from "../lib/mockData";
+import { callJarvis } from "../lib/bridge";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\pages\ChatPage.jsx ---
+import { useEffect, useRef, useState } from "react";
+import { ArrowDown } from "lucide-react";
+import ChatBubble from "../components/chat/ChatBubble";
+import ChatInputBar from "../components/chat/ChatInputBar";
+import DebugStrip from "../components/chat/DebugStrip";
+import StatusChip from "../components/common/StatusChip";
+import ThinkingLoader from "../components/chat/ThinkingLoader";
+import { initialMessages } from "../lib/mockData";
+import { callJarvis } from "../lib/bridge";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\pages\PlansPage.jsx ---
+import { Cloud, Cpu, Sparkles, Zap } from "lucide-react";
+import GlassCard from "../components/common/GlassCard";
+import StatusChip from "../components/common/StatusChip";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\pages\ProfilePage.jsx ---
+import { useEffect, useState } from "react";
+import { Database, LogOut, Mail, Monitor, Pencil, ShieldCheck, UserCircle } from "lucide-react";
+import GlassCard from "../components/common/GlassCard";
+import StatusChip from "../components/common/StatusChip";
+import { callJarvis } from "../lib/bridge";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\pages\SettingsPage.jsx ---
+import { useEffect, useState } from "react";
+import { Bot, FolderOpen, KeyRound, Volume2 } from "lucide-react";
+import GlassCard from "../components/common/GlassCard";
+import StatusChip from "../components/common/StatusChip";
+import ToggleSwitch from "../components/common/ToggleSwitch";
+import { callJarvis } from "../lib/bridge";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\pages\WelcomePage.jsx ---
+import { useState } from "react";
+import {
+import { callJarvis } from "../lib/bridge";
+import JarvisLogo from "../components/common/JarvisLogo";
+import DotSpinner from "../components/common/DotSpinner";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\App.jsx ---
+import { useEffect, useState } from "react";
+import AppShell from "./components/layout/AppShell";
+import WelcomePage from "./pages/WelcomePage";
+import { callJarvis } from "./lib/bridge";
+
+--- D:\1\1\Coding\Files\Python\Jarvis\frontend\src\main.jsx ---
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import "./styles/globals.css";
+import App from "./App.jsx";
+
+Done. Report saved to dependency_audit.txt

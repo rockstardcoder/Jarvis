@@ -22,6 +22,20 @@ jobs:
           gradle-version: '9.3.1'
       - name: Ensure Android SDK 36
         run: yes | sdkmanager "platforms;android-36" "build-tools;36.0.0" >/dev/null || true
+      - name: Apply final source fixes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/src/main/java/com/buildrelay/app/GitHubClient.kt')
+          s=p.read_text()
+          s=s.replace('test -n "$APK" || { echo "No APK generated"; exit 31; }', 'test -n "${\'$\'}APK" || { echo "No APK generated"; exit 31; }')
+          s=s.replace('cp "$APK" buildrelay-output/app.apk', 'cp "${\'$\'}APK" buildrelay-output/app.apk')
+          s=s.replace("awk '{print $1}'", "awk '{print ${'$'}1}'")
+          s=s.replace('"$SIZE" "$SHA" > buildrelay-output/metadata.json', '"${\'$\'}SIZE" "${\'$\'}SHA" > buildrelay-output/metadata.json')
+          p.write_text(s)
+          Path('gradle.properties').write_text('org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8\norg.gradle.parallel=false\n')
+          PY
       - name: Build APK and capture log
         id: compile
         shell: bash

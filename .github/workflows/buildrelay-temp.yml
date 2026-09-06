@@ -22,8 +22,26 @@ jobs:
           gradle-version: '9.3.1'
       - name: Ensure Android SDK 36
         run: yes | sdkmanager "platforms;android-36" "build-tools;36.0.0" >/dev/null || true
-      - name: Build APK
-        run: gradle :app:assembleDebug --stacktrace --no-daemon
+      - name: Build APK and capture log
+        id: compile
+        shell: bash
+        run: |
+          set +e
+          gradle :app:assembleDebug --stacktrace --no-daemon > build.log 2>&1
+          CODE=$?
+          echo "exit_code=$CODE" >> "$GITHUB_OUTPUT"
+          tail -n 200 build.log
+          exit 0
+      - name: Upload compiler log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BuildRelay-Compiler-Log
+          path: buildrelay-ci/build.log
+          retention-days: 7
+      - name: Fail if compilation failed
+        if: steps.compile.outputs.exit_code != '0'
+        run: exit 1
       - uses: actions/upload-artifact@v4
         with:
           name: BuildRelay-Final-APK
